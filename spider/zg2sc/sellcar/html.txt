@@ -1,0 +1,1040 @@
+
+
+  
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml">
+<head>
+<title>车辆搜索结果</title>
+<meta http-equiv="Content-Type" content="text/html; charset=gb2312" />
+<link rel="stylesheet" type="text/css" href="http://img.zg2sc.cn/css/all.css"/>
+<link rel="stylesheet" type="text/css" href="http://img.zg2sc.cn/css/style.css"/>
+<link rel="stylesheet" type="text/css" href="http://img.zg2sc.cn/css/ppwin.css" />
+
+<style>
+.search_car_list_title2_right a.lb {background:url(http://img.zg2sc.cn/img2013/big_bj.jpg) -213px -481px;}
+</style>
+</head>
+<script type="text/javascript" language="javascript" src="/usedcar/js/jquery-1.9.1.min.js"></script>
+<script type="text/javascript" language="javascript" src="/usedcar/js/car.js" ></script>
+<script language="javascript" type="text/javascript" src="/usedcar/js/header.js"></script>
+<script language="javascript" type="text/javascript" src="/usedcar/js/index.js"></script>
+<script language="javascript" type="text/javascript" src="/usedcar/js/newcompare.js"></script>
+<script type="text/javascript" language="javascript" src="http://img.zg2sc.cn/js/carcz_index.js" ></script>
+<script type="text/javascript" language="javascript" src="http://img.zg2sc.cn/js/CarModels4pingu.js" ></script>
+ <script type="text/javascript">
+//document.domain = "zg2sc.cn";
+//document.domain = "192.168.206.110";
+$(function(){	
+	$("#carbrand").dplist(brandGroupData);
+	$("#carseri").on("click",function(){serilist($("#carbrand"));});
+	$("#carmode").on("click",function(){mlist();});	
+});
+</script>
+<body>
+
+
+<script type="text/javascript">
+$(document).ready(function() {	
+	//感兴趣的二手车
+	$.post("/usedcar/getInterested.do", function(data) {
+		var jsonObj = eval("(" + data + ")");
+		var res = jsonObj.success;
+		var content = "";
+		if(res){
+			$("#search_car_gxq_dt_div").css("display","block");
+			//$("#search_car_gxq_jt").css("display","none");
+			var carVo = jsonObj.carVo;
+			for(var i=0;i<carVo.length;i++){
+				var car = carVo[i];
+				content += '<li><span><a href="'+car.carurl+'" target="_blank">';
+				if(null == car.smphoto || car.smphoto == ''){
+					content += '<img src="http://img.zg2sc.cn/img2013/nocarpo.jpg" />';
+				} else {
+					content += '<img src="http://www.zg2sc.cn'+car.smphoto+'" />';
+				}
+				content += '</a></span><p class="mc"><a>'+car.regtime+car.car_class;
+				content += '</a></p><p class="jg"><a>'+car.city;
+				content += '<strong>'+car.price+'万元</strong></a></p></li>';
+			}
+			$("#search_car_gxq_dt").html(content);
+		}
+	});
+	
+	//品牌关注度
+	$.post("/usedcar/getBrandRanking.do", function(data) {
+		var jsonObj = eval("(" + data + ")");
+		var res = jsonObj.success;
+		var content = "";
+		if(res){
+			$("#search_gzd_dt").css("display","block");
+			$("#search_gzd_jt").css("display","none");
+			var brVo = jsonObj.brVo;
+			for(var i=0;i<brVo.length;i++){
+				var br = brVo[i];
+				content += '<dt><span class="a1">' + (i+1) + '</span>' + br.brandName;
+				if(br.seqfloat > 0){
+					content += '</dt><dd><span class="a1">'+br.seqfloat;
+				} else if(br.seqfloat < 0) {
+					content += '</dt><dd><span class="a2">'+br.seqfloat;
+				} else {
+					content += '</dt><dd><span>-';
+				}
+				content += '</span></dd><div class="clear">&nbsp;</div>';
+			}
+			$("#search_gzd_dt").html(content);
+		}
+	});
+	
+});
+
+$(function(){
+//$("#divhead").load("http://www.zg2sc.cn/inc/head.jsp?def_id=32_33");
+$("#divfoot").load("http://www.zg2sc.cn/inc/foot.jsp");
+$("#search_city").on("click", function(){ 
+        Cookie.setCookie("Zg2sc.Area","中国,,", Cookie.getExpDate(1, 0, 0),"/","zg2sc.cn","");
+		window.location.reload();
+        });	
+if($("#pageup").length>0){
+$("#page_up").attr("href",$("#pageup").attr("href"));
+}
+
+if($("#pagedw").length>0){
+$("#page_dw").attr("href",$("#pagedw").attr("href"));
+}				
+});
+
+</script>
+
+
+
+<script language="javascript" type="text/javascript" src="/usedcar/js/header.js"></script>
+ <script language="javascript" type="text/javascript" src="/usedcar/js/index.js"></script>
+ 
+
+<div class="top_line"> 
+     <div class="top_linen">         
+          <div class="top_linen_zh">
+                <dl> 
+                 <dd id="login">您好，欢迎来中国二手车！&nbsp;请 <a href="http://www.zg2sc.cn/zuser/user/relogin.do">登录</a>&nbsp;</dd>                   
+                </dl>                         
+          </div>  
+          <div id="regu" class="top_zcclose" onMouseOver="this.className='top_zc';getElementById('top_zcmain').style.display='block';" 
+onmouseout="this.className='top_zcclose';getElementById('top_zcmain').style.display='none';">免费注册
+<!--注册浮层star -->
+<div class="top_zcmain" id="top_zcmain">
+<div class="top_zctit">免费注册</div>
+<div class="top_zccent"><a href="http://www.zg2sc.cn/zuser/user/reg_s.do">个人注册</a><br />
+<a href="http://www.zg2sc.cn/zuser/user/reg_d.do">商家注册</a><br /></div>               
+</div>
+<!--注册浮层end -->   
+</div>          
+<div class="top_linen_dh"><p></p>
+  <span></span><a href="http://www.zg2sc.cn/about/about_map.html" target="_blank">网站地图</a></div>
+</div>
+</div>
+<script language="javascript" type="text/javascript">
+var zuser = Cookie.getCookie("zg2sc_user");
+if(zuser!=""){
+document.getElementById("login").innerHTML='欢迎您,&nbsp;<a href="/zuser/bst/index.do">'+zuser+'</a>'+'&nbsp;'+'<a href="/zuser/user/logout.do">退出</a>';
+document.getElementById("regu").style.display="none";
+}else{
+document.getElementById("login").innerHTML='您好，欢迎来中国二手车！&nbsp;请 <a href="http://www.zg2sc.cn/zuser/user/relogin.do">登录</a>&nbsp;';
+}
+</script>
+
+<div class="all">
+     <div class="top_adv" id="ytTonglan"><img src="http://img.zg2sc.cn/img2013/xh_bj.jpg" width="958" height="38" /></div>
+     <div class="top_biglogo">
+          <div class="top_logo"><a href="http://www.zg2sc.cn" target="_blank"></a></div>
+<!---城市切换start--->
+          <div class="top_city">
+        <div class="addressbox">
+        <address id="areaText">
+            <span id="headerAreaName">全国</span>
+        </address>
+        <div id="close" onmouseOver="this.className='geucar';" onmouseout="this.className='geucarclose';">
+            <span>&nbsp;&nbsp;</span>
+            <div class="addfucbox clearfix">
+            <div class="addfuc">
+                       <div class="addmain">
+                     <dl class="quan"><dt><a onClick="HeaderFunction.changeCity('中国,,')">全国</a></dt><dd><a style="float:right; width:60px; color:#666">更多城市>></a></dd>
+                        </dl><dl><dt>热门城市</dt><dd><a onClick="HeaderFunction.changeCity('中国,北京,北京')">北京</a><a onClick="HeaderFunction.changeCity('中国,上海,上海')">上海</a><a onClick="HeaderFunction.changeCity('中国,天津,天津')">天津</a><a onClick="HeaderFunction.changeCity('中国,湖北,武汉')">武汉</a><a onClick="HeaderFunction.changeCity('中国,深圳,深圳')">深圳</a><a onClick="HeaderFunction.changeCity('中国,广东,广州')">广州</a><a onClick="HeaderFunction.changeCity('中国,河南,郑州')">郑州</a><a onClick="HeaderFunction.changeCity('中国,河北,石家庄')">石家庄</a><a onClick="HeaderFunction.changeCity('中国,浙江,宁波')">宁波</a><a onClick="HeaderFunction.changeCity('中国,辽宁,沈阳')">沈阳</a><a onclick="HeaderFunction.changeCity('中国,山东,青岛')">青岛</a><a onClick="HeaderFunction.changeCity('中国,江苏,南京')">南京</a><a onClick="HeaderFunction.changeCity('中国,重庆,重庆')">重庆</a><a onClick="HeaderFunction.changeCity('中国,四川,成都')">成都</a><a onClick="HeaderFunction.changeCity('中国,湖南,长沙')">长沙</a><a onClick="HeaderFunction.changeCity('中国,黑龙江,哈尔滨')">哈尔滨</a><a onclick="HeaderFunction.changeCity('中国,浙江,杭州')">杭州</a><a onClick="HeaderFunction.changeCity('中国,辽宁,大连')">大连</a><a onClick="HeaderFunction.changeCity('中国,吉林,长春')">长春</a><a onClick="HeaderFunction.changeCity('中国,山东,枣庄')">枣庄</a><a onClick="HeaderFunction.changeCity('中国,山西,太原')">太原</a><a onClick="HeaderFunction.changeCity('中国,江苏,苏州')">苏州</a><a onClick="HeaderFunction.changeCity('中国,浙江,温州')">温州</a><a onClick="HeaderFunction.changeCity('中国,山东,济南')">济南</a><a onClick="HeaderFunction.changeCity('中国,陕西,西安')">西安</a><a onClick="HeaderFunction.changeCity('中国,云南,昆明')">昆明</a><a onClick="HeaderFunction.changeCity('中国,山东,烟台')">烟台</a><a onClick="HeaderFunction.changeCity('中国,广西,南宁')">南宁</a></dd></dl>
+                            <dl><dt>热门省份</dt><dd><a onClick="HeaderFunction.changeCity('中国,广东,')">广东</a><a onClick="HeaderFunction.changeCity('中国,浙江,')"> 浙江</a><a onClick="HeaderFunction.changeCity('中国,湖北,')"> 湖北</a><a onClick="HeaderFunction.changeCity('中国,辽宁,')"> 辽宁</a><a onClick="HeaderFunction.changeCity('中国,河南,')"> 河南</a><a onClick="HeaderFunction.changeCity('中国,湖南,')"> 湖南</a> 
+<a onClick="HeaderFunction.changeCity('中国,山东,')">山东</a><a onClick="HeaderFunction.changeCity('中国,河北,')"> 河北</a><a onClick="HeaderFunction.changeCity('中国,江苏,')"> 江苏</a><a onClick="HeaderFunction.changeCity('中国,四川,')"> 四川</a><a onClick="HeaderFunction.changeCity('中国,福建,')"> 福建</a><a onClick="HeaderFunction.changeCity('中国,黑龙江,')"> 黑龙江</a> 
+<a onClick="HeaderFunction.changeCity('中国,吉林,')">吉林</a><a onClick="HeaderFunction.changeCity('中国,山西,')"> 山西</a><a onClick="HeaderFunction.changeCity('中国,陕西,')"> 陕西</a><a onClick="HeaderFunction.changeCity('中国,云南,')"> 云南</a><a onClick="HeaderFunction.changeCity('中国,安徽,')"> 安徽</a><a onClick="HeaderFunction.changeCity('中国,江西,')"> 江西</a>
+<a onClick="HeaderFunction.changeCity('中国,甘肃,')">甘肃</a><a onClick="HeaderFunction.changeCity('中国,海南,')"> 海南</a><a onClick="HeaderFunction.changeCity('中国,贵州,')"> 贵州</a><a onClick="HeaderFunction.changeCity('中国,青海,')"> 青海</a><a onClick="HeaderFunction.changeCity('中国,内蒙古,')"> 内蒙古</a> 
+<a onClick="HeaderFunction.changeCity('中国,宁夏,')">宁夏</a><a onClick="HeaderFunction.changeCity('中国,新疆,')"> 新疆</a><a onClick="HeaderFunction.changeCity('中国,广西,')"> 广西</a><a onClick="HeaderFunction.changeCity('中国,西藏,')"> 西藏</a> 
+</dd>
+                            </dl>
+
+                    </div>
+              </div>
+            </div>
+        </div>
+    </div>
+          </div>
+<!---城市切换end--->
+          <div class="top_adv_1" id="ytBTonglan"><img src="http://img.zg2sc.cn/img2013/xh_bj.jpg" width="573" height="57" /></div>
+          <div class="top_wb">
+            <dl>
+               <dt>新浪微博：</dt>
+               <dd onMouseOver="this.className='top_wb_c';getElementById('top_wbmain').style.display='block';" 
+onmouseout="this.className='top_wbclose';getElementById('top_wbmain').style.display='none';" style="background:url(http://img.zg2sc.cn/img2013/big_bj.jpg) 0 -29px;">
+               <!--注册浮层star -->
+                <div class="top_wbmain" id="top_wbmain">
+                <span class="wxcxjta2">◆</span><span class="wxcxjtb2">◆</span>
+                    <img src="http://img.zg2sc.cn/img2013/xinlang.jpg" />
+                    <p>
+                    扫描二维码加中国二<br />手车官方微博为好友
+                    <a href="http://e.weibo.com/zg2sc4006589999/profile" target="_blank" >点击进入微博首页</a>
+                    </p>             
+                </div>
+                <!--注册浮层end --></dd>
+               <dt>腾讯微博：</dt>
+               <dd onMouseOver="this.className='top_wb_c';getElementById('top_wbmain1').style.display='block';" 
+onmouseout="this.className='top_wbclose';getElementById('top_wbmain1').style.display='none';" style="background:url(http://img.zg2sc.cn/img2013/big_bj.jpg) 0 -48px;">
+               <!--注册浮层star -->
+                <div  class="top_wbmain" id="top_wbmain1">
+                    <span class="wxcxjta2">◆</span><span class="wxcxjtb2">◆</span>
+                    <img src="http://img.zg2sc.cn/img2013/tengxun.jpg" />
+                    <p>扫描二维码加中国<br />二手车网为微博好友<br />
+                    帐号zg2sc4006589999<br />
+                    <a href="http://t.qq.com/zg2sc4006589999" target="_blank" >点击进入微博首页</a>
+                    </p>          
+                </div>
+                <!--注册浮层end --></dd>
+               <dt>官方微信：</dt>
+               <dd style="background:url(http://img.zg2sc.cn/img2013/big_bj.jpg) 0 -67px;" onMouseOver="this.className='top_wb_c';getElementById('top_wbmain2').style.display='block';" 
+onmouseout="this.className='top_wbclose';getElementById('top_wbmain2').style.display='none';" >
+               <!--注册浮层star -->
+                <div  class="top_wbmain" id="top_wbmain2">
+                    <span class="wxcxjta2">◆</span><span class="wxcxjtb2">◆</span>
+                    <img src="http://img.zg2sc.cn/img2013/weixin.jpg" />
+                    <p>微信号：zg2scmit<br />
+                    扫描二维码加中国<br />二手车网为微信好友
+                    </p>          
+                </div>
+                <!--注册浮层end --></dd>
+               </dl>
+          </div>
+     </div>
+     <div class="nav">
+          <ul>
+             
+              <li class="sy"><a href="http://www.zg2sc.cn/index.htm" class="y1">首页</a></li>
+              <li class="mc"><a href="http://www.zg2sc.cn/usedcar/index.html" target="_blank">买车</a></li>
+              <li class="mc"><a href="http://www.zg2sc.cn/usedcar/buycar.html" target="_blank">卖车</a></li>
+              <li class="jg"><a href="http://www.zg2sc.cn/price/index.html" target="_blank">价格评估</a></li>
+              <li class="hc"><a href="http://www.zg2sc.cn/usedcar/hgcar.html" target="_blank">货车/工程车</a></li>
+              <li class="hxp"><a href="http://www.zg2sc.cn/tv/index.do" target="_blank">就车视频</a></li>
+              <li class="jl"><a href="http://www.zg2sc.cn/company/listCompany.do" target="_blank">网上店铺</a></li>
+          </ul>
+     </div>
+</div>
+<script type="text/javascript">
+HeaderFunction.initAreaName();//取信息
+IndexFunction.showTLAdInfo(1,'ytTonglan');
+IndexFunction.showTLAdInfo(2,'ytBTonglan');
+</script>
+<div id="divhead"></div>
+<div class="all">
+      <div class="add"><a href="http://www.zg2sc.cn/" target="_blank">网站首页</a> > <a href="/usedcar/index.html">买二手车</a> > 车辆搜索结果</div>
+      <div class="search_car_left">
+<!----搜索start---->
+        <div class="search_car_ss">
+               <div class="index_zys">
+              <div class="index_zys_left">
+                      <form action="/usedcar/p0a0t0c0y0r0f0d0s0/" method="get" name="search_car" id="search_car">   
+                      <input name="sr" class="ssk" onblur="if(!value){ value=defaultValue;}" onfocus="this.value=''" value="请输入您要搜索的车辆品牌"/>
+                      <input type="submit" class="an" value="" />
+                      </form>
+                    </div>
+                    <div class="index_zys_right">
+                    <a target="_blank" href="http://www.zg2sc.cn/usedcar/aodi/p0a0t0c0y0r0f0d0s0/">奥迪</a>
+                    <a target="_blank" href="http://www.zg2sc.cn/usedcar/baoma/p0a0t0c0y0r0f0d0s0/">宝马</a>
+                    <a target="_blank" href="http://www.zg2sc.cn/usedcar/jieda/p0a0t0c0y0r0f0d0s0/">捷达</a>
+                    <a target="_blank" href="http://www.zg2sc.cn/usedcar/pasate/p0a0t0c0y0r0f0d0s0/">帕萨特</a>
+                    <a target="_blank" href="http://www.zg2sc.cn/usedcar/yage/p0a0t0c0y0r0f0d0s0/">雅阁</a>
+                    <a target="_blank" href="http://www.zg2sc.cn/usedcar/baolai/p0a0t0c0y0r0f0d0s0/">宝来</a>
+                    <a target="_blank" href="http://www.zg2sc.cn/usedcar/yilante/p0a0t0c0y0r0f0d0s0/">伊兰特</a>
+                    </div>
+               </div>
+               <div class="index_fls" >
+                    <dl class="pt">
+                        <dt>己 选：</dt> <dd>
+                                                
+                        <a class="yx" href="http://www.zg2sc.cn/usedcar/p0a0t0c0y0r0f0d0s0/">个人车源</a>
+                           
+                        
+                        <!--<a class="yx">全国</a>--> 
+                        
+                         
+                        </dd>
+                        <dt id="search_area">品 牌：</dt>
+                        <dd>
+                        <select name="brand" id="select_brand" class="s4" ><option value=''>请选择品牌</option></select>
+                        <select name="series" id="select_series" class="s4" onchange="window.open(this.options[this.selectedIndex].value,target='_self')">
+                        <option value=''>请选择车系</option></select>            
+                        
+                        <script type="text/javascript" language="javascript"> 
+						$(function(){							
+						 getbrand("select_brand");
+						 //$("#select_id").append("<option value='file1.htm'>黑色</option>"); 						 
+						 $("#select_brand").change(
+						   function (){	
+						   $("#select_series").empty();
+						   $("#select_series").append("<option value='' title=''>请选择车系</option>");
+						   //var brandid = $("#select_brand").attr("value");
+						   var brandid = $("#select_brand").val();						   
+						   if(brandid==""){ return ""; }					  
+						   for (var x in series){							   
+							    //var obj = series[x];								
+								if(series[x][0]==brandid){								
+								     var url = window.location.href;									 
+									 if(url.indexOf("usedcar/p")>0){
+									    url = url.replace("/p","/"+series[x][3]+"/p");
+									 }else{										 
+										var str = url.substring(url.indexOf("usedcar/"),url.indexOf("/p"));										 
+										url = url.replace(str,"usedcar/"+series[x][3]);									   
+									 }									
+									 var opt = "<option value='"+url+"'>"+series[x][2]+"</option>";
+									 $("#select_series").append(opt);
+								}}							 
+						 });						 
+						});						
+						function getbrand(b_name){	
+						 //$("#"+b_name).append("<option value='' title=''>请选择品牌</option>");		  
+						 for (var x in brand){								 
+								 var url = window.location.href;	
+								 url = url.replace("/p","/"+brand[x][2]+"/p");								 
+								 var opt = "<option value='"+brand[x][0]+"'>"+brand[x][1]+"</option>";
+								 $("#"+b_name).append(opt);
+							 }							
+						}						
+						</script>
+                        </dd>
+                        <dt>价 格：</dt>
+                        <dd>
+                        
+                        <a href="/usedcar/p0a0t0c0y1r0f0d0s0/">不限</a>
+                        
+                        <a href="/usedcar/p1a0t0c0y1r0f0d0s0/">3万元以下</a>
+                        
+                        <a href="/usedcar/p2a0t0c0y1r0f0d0s0/">3-5万元</a>
+                        
+                        <a href="/usedcar/p3a0t0c0y1r0f0d0s0/">5-8万元</a>
+                        
+                        <a href="/usedcar/p4a0t0c0y1r0f0d0s0/">8-10万元</a>
+                        
+                        <a href="/usedcar/p5a0t0c0y1r0f0d0s0/">10-15万元</a>
+                        
+                        <a href="/usedcar/p6a0t0c0y1r0f0d0s0/">15-20万元</a>
+                        
+                        <a href="/usedcar/p7a0t0c0y1r0f0d0s0/">20-30万元</a>
+                        
+                        <a href="/usedcar/p8a0t0c0y1r0f0d0s0/">30-50万</a>
+                        
+                        <a href="/usedcar/p9a0t0c0y1r0f0d0s0/">50万以上</a>
+                                                
+                        </dd>
+                        <dt>车 龄：</dt>
+                        <dd>
+                        
+                        <a href="/usedcar/p0a0t0c0y1r0f0d0s0/">不限</a>
+                        
+                        <a href="/usedcar/p0a1t0c0y1r0f0d0s0/">1年内</a>
+                        
+                        <a href="/usedcar/p0a2t0c0y1r0f0d0s0/">2年内</a>
+                        
+                        <a href="/usedcar/p0a3t0c0y1r0f0d0s0/">3年内</a>
+                        
+                        <a href="/usedcar/p0a4t0c0y1r0f0d0s0/">4年内</a>
+                        
+                        <a href="/usedcar/p0a5t0c0y1r0f0d0s0/">5年内</a>
+                        
+                        <a href="/usedcar/p0a6t0c0y1r0f0d0s0/">5年以上</a>
+                           
+                        </dd>
+                        <dt>车 型：</dt>
+                        <dd>
+                        
+                        <a href="/usedcar/p0a0t0c0y1r0f0d0s0/">不限</a>
+                        
+                        <a href="/usedcar/p0a0t1c0y1r0f0d0s0/">微型车</a>
+                        
+                        <a href="/usedcar/p0a0t2c0y1r0f0d0s0/">小型车</a>
+                        
+                        <a href="/usedcar/p0a0t3c0y1r0f0d0s0/">紧凑型车</a>
+                        
+                        <a href="/usedcar/p0a0t4c0y1r0f0d0s0/">中型车</a>
+                        
+                        <a href="/usedcar/p0a0t5c0y1r0f0d0s0/">中大型车</a>
+                        
+                        <a href="/usedcar/p0a0t6c0y1r0f0d0s0/">豪华车</a>
+                        
+                        <a href="/usedcar/p0a0t7c0y1r0f0d0s0/">MPV</a>
+                        
+                        <a href="/usedcar/p0a0t8c0y1r0f0d0s0/">SUV</a>
+                           
+                        </dd>                        
+                    </dl>
+               </div>
+        </div> 
+        <div class="index_fls_more" >
+        <div class="index_fls_tj" id="more_fl">
+             <dl><dt>颜 色：</dt><dd>
+                    <select name="color" id="color" class="s3" onchange="window.open(this.options[this.selectedIndex].value,target='_self')">                    
+                        
+                    <option value='/usedcar/p0a0t0c0y1r0f0d0s0/'>不限</option> 
+                        
+                    <option value='/usedcar/p0a0t0c1y1r0f0d0s0/'>黑色</option> 
+                        
+                    <option value='/usedcar/p0a0t0c2y1r0f0d0s0/'>白色</option> 
+                        
+                    <option value='/usedcar/p0a0t0c3y1r0f0d0s0/'>灰色</option> 
+                        
+                    <option value='/usedcar/p0a0t0c4y1r0f0d0s0/'>银色</option> 
+                        
+                    <option value='/usedcar/p0a0t0c5y1r0f0d0s0/'>红色</option> 
+                        
+                    <option value='/usedcar/p0a0t0c6y1r0f0d0s0/'>黄色</option> 
+                        
+                    <option value='/usedcar/p0a0t0c7y1r0f0d0s0/'>金色</option> 
+                        
+                    <option value='/usedcar/p0a0t0c8y1r0f0d0s0/'>蓝色</option> 
+                        
+                    <option value='/usedcar/p0a0t0c9y1r0f0d0s0/'>绿色</option> 
+                        
+                    <option value='/usedcar/p0a0t0c10y1r0f0d0s0/'>墨绿色</option> 
+                        
+                    <option value='/usedcar/p0a0t0c11y1r0f0d0s0/'>其他</option> 
+                                                                        
+                    </select> </dd>
+                <dt>车源类型：</dt><dd>
+                  
+                <a href="/usedcar/p0a0t0c0y0r0f0d0s0/">不限</a>
+                  
+                <a href="/usedcar/p0a0t0c0y1r0f0d0s0/">个人车源</a>
+                  
+                <a href="/usedcar/p0a0t0c0y2r0f0d0s0/">车商车源</a>
+                
+                </dd>
+                <dt>认证店铺车辆：</dt><dd>
+                <select name="re_type" id="re_type" class="s1" onchange="window.open(this.options[this.selectedIndex].value,target='_self')">   
+                    
+                <option value="/usedcar/p0a0t0c0y1r0f0d0s0/">不限</option> 
+                    
+                <option value="/usedcar/p0a0t0c0y1r1f0d0s0/">一星以上</option> 
+                    
+                <option value="/usedcar/p0a0t0c0y1r2f0d0s0/">二星以上</option> 
+                    
+                <option value="/usedcar/p0a0t0c0y1r3f0d0s0/">三星以上</option> 
+                    
+                <option value="/usedcar/p0a0t0c0y1r4f0d0s0/">四星以上</option> 
+                    
+                <option value="/usedcar/p0a0t0c0y1r5f0d0s0/">五星以上</option> 
+                    
+                <option value="/usedcar/p0a0t0c0y1r6f0d0s0/">一钻以上</option> 
+                    
+                <option value="/usedcar/p0a0t0c0y1r7f0d0s0/">二钻以上</option> 
+                    
+                <option value="/usedcar/p0a0t0c0y1r8f0d0s0/">三钻以上</option> 
+                    
+                <option value="/usedcar/p0a0t0c0y1r9f0d0s0/">四钻以上</option> 
+                    
+                <option value="/usedcar/p0a0t0c0y1r10f0d0s0/">五钻以上</option> 
+                    
+                <option value="/usedcar/p0a0t0c0y1r11f0d0s0/">商家认证</option> 
+                    
+                <option value="/usedcar/p0a0t0c0y1r12f0d0s0/">个人认证</option> 
+                                
+                </select></dd>
+                <dt>放心二手车：</dt><dd>
+                <select name="fx_type" id="fx_type" class="s2" onchange="window.open(this.options[this.selectedIndex].value,target='_self')">   
+                    
+                <option value="/usedcar/p0a0t0c0y1r0f0d0s0/">不限</option> 
+                    
+                <option value="/usedcar/p0a0t0c0y1r0f1d0s0/">千分制五星级车辆</option> 
+                    
+                <option value="/usedcar/p0a0t0c0y1r0f2d0s0/">车视界视频推荐车辆</option> 
+                    
+                <option value="/usedcar/p0a0t0c0y1r0f3d0s0/">七天无理由退换车辆</option> 
+                    
+                <option value="/usedcar/p0a0t0c0y1r0f4d0s0/">检测延保车辆</option> 
+                    
+                <option value="/usedcar/p0a0t0c0y1r0f5d0s0/">上海通用诚新二手车</option> 
+                   
+                </select></dd>
+             </dl>
+        </div>
+                <input style="cursor:pointer; background:none; color:#333; border:none; width:107px; height:22px; padding-bottom:4px; background:url(http://img.zg2sc.cn/img2013/big_bj.jpg) 0 -1497px; margin-left:320px; display:inline;" onclick="showt('more_fl');" type='button'  value='▼更多搜索条件' id='inp'>              
+<script>
+function showt(id){
+    var aiin  = document.getElementById(id);
+    var inp= document.getElementById('inp');
+    if(aiin.style.display != 'block'){
+        aiin.style.display = 'block';
+        inp.value='△收起';
+    }else{
+        aiin.style.display = 'none';    
+        inp.value='▼更多条件';
+    }
+}
+</script> 
+</div>
+<!----搜索end---->
+<!----搜索列表start---->
+       <div class="search_car_list">
+            <div class="search_car_list_title1">
+                 <div class="search_car_list_title1_left">
+                      <ul>
+                           <li><a href="/usedcar/p0a0t0c0y0r0f0d0s0/" class="red">全部</a></li>
+                           <li><a href="/usedcar/p0a0t0c0y1r0f0d0s0/">个人车源</a></li>
+                           <li><a href="/usedcar/p0a0t0c0y2r0f0d0s0/">商家车源</a></li>
+                      </ul>
+                 </div>
+                 <div class="search_car_list_title1_right">
+                       <a href="" id="page_dw" class="right"></a><a href="" id="page_up" class="left"></a><span>第 1 页</span>
+                 </div>
+            </div>
+            <div class="search_car_list_title2">
+                 <ul>
+                 <li><span>车辆年份</span>
+                 <a class="up" href="/usedcar/p0a0t0c0y1r0f0d1s0/"></a>
+                 <a class="down" href="/usedcar/p0a0t0c0y1r0f0d2s0/"></a></li>
+                 <li><span>表显里程</span><a class="up" href="/usedcar/p0a0t0c0y1r0f0d3s0/"></a>
+                 <a class="down" href="/usedcar/p0a0t0c0y1r0f0d4s0/"></a></li>
+                 <li><span>价格</span><a class="up" href="/usedcar/p0a0t0c0y1r0f0d5s0/"></a>
+                 <a class="down" href="/usedcar/p0a0t0c0y1r0f0d6s0/"></a></li></ul>
+                 <div class="search_car_list_title2_right">
+                      <a href="/usedcar/p0a0t0c0y1r0f0d0s1/" class="dt"></a>
+                      <a href="/usedcar/p0a0t0c0y1r0f0d0s0/" class="lb"></a>
+                 </div>
+            </div>
+            <div class="search_car_lb">
+                 
+                  
+                  <dl>
+                      <dt>
+                      <a target="_blank" href="/carfile/3079/3079957.html">
+                                            
+                      <img src="http://www.zg2sc.cn/upfile/carpo/2015/03/06/2015030617145237057sm.jpg" />
+                      
+                      </a>
+                      </a>
+                      </dt>
+                      <dd><span class="bt"><a target="_blank" href="/carfile/3079/3079957.html">
+                      [济南]<strong>1.6L 自动经典版</strong></a></span>
+                      　　<span class="zhong">
+                          <p class="pp">品牌：
+                                              丰田</p>
+                          <p class="cx">车系：花冠EX</p>
+                          <p class="pp">年份：2009</p>
+                          <p class="cx">里程：8.8万公里</p>
+                          </span>
+                          <span class="jg">5.98万元</span>
+                          <a onclick="compare.add('3079957','济南','2009年01月','花冠EX');" class="db">对比</a>
+                      </dd>
+                  </dl>
+                  
+                  <dl>
+                      <dt>
+                      <a target="_blank" href="/carfile/3079/3079955.html">
+                                            
+                      <img src="http://www.zg2sc.cn/upfile/carpo/2015/03/06/201503061709033610sm.jpg" />
+                      
+                      </a>
+                      </a>
+                      </dt>
+                      <dd><span class="bt"><a target="_blank" href="/carfile/3079/3079955.html">
+                      [青岛]<strong>现代-途胜-2.0MT-GLS豪华型</strong></a></span>
+                      　　<span class="zhong">
+                          <p class="pp">品牌：
+                                              现代</p>
+                          <p class="cx">车系：途胜</p>
+                          <p class="pp">年份：2007</p>
+                          <p class="cx">里程：7.0万公里</p>
+                          </span>
+                          <span class="jg">6.88万元</span>
+                          <a onclick="compare.add('3079955','青岛','2007年08月','途胜');" class="db">对比</a>
+                      </dd>
+                  </dl>
+                  
+                  <dl>
+                      <dt>
+                      <a target="_blank" href="/carfile/3079/3079951.html">
+                                            
+                      <img src="http://www.zg2sc.cn/upfile/carpo/2015/03/06/2015030617073231875sm.jpg" />
+                      
+                      </a>
+                      </a>
+                      </dt>
+                      <dd><span class="bt"><a target="_blank" href="/carfile/3079/3079951.html">
+                      [青岛]<strong>大众-途锐-3.6AT-顶级版</strong></a></span>
+                      　　<span class="zhong">
+                          <p class="pp">品牌：
+                                              大众</p>
+                          <p class="cx">车系：途锐</p>
+                          <p class="pp">年份：2009</p>
+                          <p class="cx">里程：6.0万公里</p>
+                          </span>
+                          <span class="jg">34.8万元</span>
+                          <a onclick="compare.add('3079951','青岛','2009年07月','途锐');" class="db">对比</a>
+                      </dd>
+                  </dl>
+                  
+                  <dl>
+                      <dt>
+                      <a target="_blank" href="/carfile/3079/3079949.html">
+                                            
+                      <img src="http://www.zg2sc.cn/upfile/carpo/2015/03/06/2015030616591041532sm.jpg" />
+                      
+                      </a>
+                      </a>
+                      </dt>
+                      <dd><span class="bt"><a target="_blank" href="/carfile/3079/3079949.html">
+                      [青岛]<strong>别克-GL8-2.5AT-LT豪华型</strong></a></span>
+                      　　<span class="zhong">
+                          <p class="pp">品牌：
+                                              别克</p>
+                          <p class="cx">车系：别克GL8</p>
+                          <p class="pp">年份：2009</p>
+                          <p class="cx">里程：7.0万公里</p>
+                          </span>
+                          <span class="jg">9.38万元</span>
+                          <a onclick="compare.add('3079949','青岛','2009年06月','别克GL8');" class="db">对比</a>
+                      </dd>
+                  </dl>
+                  
+                  <dl>
+                      <dt>
+                      <a target="_blank" href="/carfile/3079/3079953.html">
+                                            
+                      <img src="http://www.zg2sc.cn/upfile/carpo/2015/03/06/2015030617063824340sm.jpg" />
+                      
+                      </a>
+                      </a>
+                      </dt>
+                      <dd><span class="bt"><a target="_blank" href="/carfile/3079/3079953.html">
+                      [青岛]<strong>丰田-汉兰达-2.7AT-豪华版</strong></a></span>
+                      　　<span class="zhong">
+                          <p class="pp">品牌：
+                                              丰田</p>
+                          <p class="cx">车系：汉兰达</p>
+                          <p class="pp">年份：2009</p>
+                          <p class="cx">里程：6.0万公里</p>
+                          </span>
+                          <span class="jg">16.98万元</span>
+                          <a onclick="compare.add('3079953','青岛','2009年06月','汉兰达');" class="db">对比</a>
+                      </dd>
+                  </dl>
+                  
+                  <dl>
+                      <dt>
+                      <a target="_blank" href="/carfile/3079/3079947.html">
+                                            
+                      <img src="http://www.zg2sc.cn/upfile/carpo/2015/03/06/2015030616562127746sm.jpg" />
+                      
+                      </a>
+                      </a>
+                      </dt>
+                      <dd><span class="bt"><a target="_blank" href="/carfile/3079/3079947.html">
+                      [青岛]<strong>比亚迪-F6 新财富版-2.4A/MT-GS旗舰型NAVI</strong></a></span>
+                      　　<span class="zhong">
+                          <p class="pp">品牌：
+                                              比亚迪</p>
+                          <p class="cx">车系：比亚迪F6</p>
+                          <p class="pp">年份：2011</p>
+                          <p class="cx">里程：4.6万公里</p>
+                          </span>
+                          <span class="jg">4.68万元</span>
+                          <a onclick="compare.add('3079947','青岛','2011年10月','比亚迪F6');" class="db">对比</a>
+                      </dd>
+                  </dl>
+                  
+                  <dl>
+                      <dt>
+                      <a target="_blank" href="/carfile/3079/3079944.html">
+                                            
+                      <img src="http://www.zg2sc.cn/upfile/carpo/2015/03/06/2015030616542018497sm.jpg" />
+                      
+                      </a>
+                      </a>
+                      </dt>
+                      <dd><span class="bt"><a target="_blank" href="/carfile/3079/3079944.html">
+                      [青岛]<strong>别克-君越-2.4AT-精英型</strong></a></span>
+                      　　<span class="zhong">
+                          <p class="pp">品牌：
+                                              别克</p>
+                          <p class="cx">车系：君越</p>
+                          <p class="pp">年份：2008</p>
+                          <p class="cx">里程：7.0万公里</p>
+                          </span>
+                          <span class="jg">7.28万元</span>
+                          <a onclick="compare.add('3079944','青岛','2008年06月','君越');" class="db">对比</a>
+                      </dd>
+                  </dl>
+                  
+                  <dl>
+                      <dt>
+                      <a target="_blank" href="/carfile/2726/2726497.html">
+                                            
+                      <img src="http://www.zg2sc.cn/upfile/carpo/2014/06/16/2014061610043441445sm.jpg" />
+                      
+                      </a>
+                      </a>
+                      </dt>
+                      <dd><span class="bt"><a target="_blank" href="/carfile/2726/2726497.html">
+                      [济南]<strong>大众-帕萨特领驭-1.8T-MT-豪华型</strong></a></span>
+                      　　<span class="zhong">
+                          <p class="pp">品牌：
+                                              大众</p>
+                          <p class="cx">车系：帕萨特</p>
+                          <p class="pp">年份：2009</p>
+                          <p class="cx">里程：7.0万公里</p>
+                          </span>
+                          <span class="jg">6.8万元</span>
+                          <a onclick="compare.add('2726497','济南','2009年01月','帕萨特');" class="db">对比</a>
+                      </dd>
+                  </dl>
+                  
+                  <dl>
+                      <dt>
+                      <a target="_blank" href="/carfile/3079/3079942.html">
+                                            
+                      <img src="http://www.zg2sc.cn/upfile/carpo/2015/03/06/2015030616500953185sm.jpg" />
+                      
+                      </a>
+                      </a>
+                      </dt>
+                      <dd><span class="bt"><a target="_blank" href="/carfile/3079/3079942.html">
+                      [青岛]<strong>本田-奥德赛-2.4AT-豪华型</strong></a></span>
+                      　　<span class="zhong">
+                          <p class="pp">品牌：
+                                              本田</p>
+                          <p class="cx">车系：奥德赛</p>
+                          <p class="pp">年份：2010</p>
+                          <p class="cx">里程：6.0万公里</p>
+                          </span>
+                          <span class="jg">15.6万元</span>
+                          <a onclick="compare.add('3079942','青岛','2010年06月','奥德赛');" class="db">对比</a>
+                      </dd>
+                  </dl>
+                  
+                  <dl>
+                      <dt>
+                      <a target="_blank" href="/carfile/2755/2755976.html">
+                                            
+                      <img src="http://www.zg2sc.cn/upfile/carpo/2014/07/07/2014070710242938713sm.jpg" />
+                      
+                      </a>
+                      </a>
+                      </dt>
+                      <dd><span class="bt"><a target="_blank" href="/carfile/2755/2755976.html">
+                      [济宁]<strong>17.5米高低板运输车</strong></a></span>
+                      　　<span class="zhong">
+                          <p class="pp">品牌：
+                                              定做全新半挂车</p>
+                          <p class="cx">车系：13米高低板高栏挂车</p>
+                          <p class="pp">年份：2014</p>
+                          <p class="cx">里程：1.0万公里</p>
+                          </span>
+                          <span class="jg">5.5万元</span>
+                          <a onclick="compare.add('2755976','济宁','2014年01月','13米高低板高栏挂车');" class="db">对比</a>
+                      </dd>
+                  </dl>
+                  
+                  <dl>
+                      <dt>
+                      <a target="_blank" href="/carfile/2719/2719155.html">
+                                            
+                      <img src="http://www.zg2sc.cn/upfile/carpo/2014/06/09/2014060910512136295sm.jpg" />
+                      
+                      </a>
+                      </a>
+                      </dt>
+                      <dd><span class="bt"><a target="_blank" href="/carfile/2719/2719155.html">
+                      [济南]<strong>45立方75立方85立方</strong></a></span>
+                      　　<span class="zhong">
+                          <p class="pp">品牌：
+                                              水泥罐车</p>
+                          <p class="cx">车系：二手水泥罐车</p>
+                          <p class="pp">年份：2012</p>
+                          <p class="cx">里程：10.0万公里</p>
+                          </span>
+                          <span class="jg">10.0万元</span>
+                          <a onclick="compare.add('2719155','济南','2012年05月','二手水泥罐车');" class="db">对比</a>
+                      </dd>
+                  </dl>
+                  
+                  <dl>
+                      <dt>
+                      <a target="_blank" href="/carfile/2882/2882567.html">
+                                            
+                      <img src="http://www.zg2sc.cn/upfile/carpo/2014/10/10/201410101121572645sm.jpg" />
+                      
+                      </a>
+                      </a>
+                      </dt>
+                      <dd><span class="bt"><a target="_blank" href="/carfile/2882/2882567.html">
+                      [德州]<strong>奥迪-新A6L-2.0T-MT-标准型</strong></a></span>
+                      　　<span class="zhong">
+                          <p class="pp">品牌：
+                                              奥迪</p>
+                          <p class="cx">车系：奥迪A6L</p>
+                          <p class="pp">年份：2009</p>
+                          <p class="cx">里程：6.1万公里</p>
+                          </span>
+                          <span class="jg">12.8万元</span>
+                          <a onclick="compare.add('2882567','德州','2009年08月','奥迪A6L');" class="db">对比</a>
+                      </dd>
+                  </dl>
+                  
+                  <dl>
+                      <dt>
+                      <a target="_blank" href="/carfile/3054/3054920.html">
+                                            
+                      <img src="http://www.zg2sc.cn/upfile/carpo/2015/01/26/2015012617130180974sm.jpg" />
+                      
+                      </a>
+                      </a>
+                      </dt>
+                      <dd><span class="bt"><a target="_blank" href="/carfile/3054/3054920.html">
+                      [济南]<strong>长城-哈弗-2.5T-MT-超豪华型四驱</strong></a></span>
+                      　　<span class="zhong">
+                          <p class="pp">品牌：
+                                              长城</p>
+                          <p class="cx">车系：哈弗</p>
+                          <p class="pp">年份：2011</p>
+                          <p class="cx">里程：3.6万公里</p>
+                          </span>
+                          <span class="jg">6.3万元</span>
+                          <a onclick="compare.add('3054920','济南','2011年04月','哈弗');" class="db">对比</a>
+                      </dd>
+                  </dl>
+                  
+                  <dl>
+                      <dt>
+                      <a target="_blank" href="/carfile/3050/3050684.html">
+                                            
+                      <img src="http://www.zg2sc.cn/upfile/carpo/2015/01/23/2015012322095242491sm.jpg" />
+                      
+                      </a>
+                      </a>
+                      </dt>
+                      <dd><span class="bt"><a target="_blank" href="/carfile/3050/3050684.html">
+                      [济南]<strong>铃木-天语SX4 锐骑-1.6MT-运动型</strong></a></span>
+                      　　<span class="zhong">
+                          <p class="pp">品牌：
+                                              铃木</p>
+                          <p class="cx">车系：天语SX4</p>
+                          <p class="pp">年份：2011</p>
+                          <p class="cx">里程：4.6万公里</p>
+                          </span>
+                          <span class="jg">6.2万元</span>
+                          <a onclick="compare.add('3050684','济南','2011年02月','天语SX4');" class="db">对比</a>
+                      </dd>
+                  </dl>
+                  
+                  <dl>
+                      <dt>
+                      <a target="_blank" href="/carfile/2756/2756363.html">
+                                            
+                      <img src="http://www.zg2sc.cn/upfile/carpo/2014/07/07/2014070713594256637sm.jpg" />
+                      
+                      </a>
+                      </a>
+                      </dt>
+                      <dd><span class="bt"><a target="_blank" href="/carfile/2756/2756363.html">
+                      [济南]<strong>MINI-COOPER-1.6A/MT-One</strong></a></span>
+                      　　<span class="zhong">
+                          <p class="pp">品牌：
+                                              MINI</p>
+                          <p class="cx">车系：MINI</p>
+                          <p class="pp">年份：2014</p>
+                          <p class="cx">里程：0.9万公里</p>
+                          </span>
+                          <span class="jg">16.9万元</span>
+                          <a onclick="compare.add('2756363','济南','2014年04月','MINI');" class="db">对比</a>
+                      </dd>
+                  </dl>
+                    
+
+                 
+            </div>
+ <!----翻页start---->
+            <div class="page_lb">
+                  <div class="page_lb_text">
+                  <a href="/zuser/car/reinscar.do" target="_blank">马上发布一条卖车信息&gt;&gt; </a>&nbsp;  
+                  <a href="/qiugou/qiugou.jsp" target="_blank">马上发布一条求购信息&gt;&gt;</a></div>
+                  
+                  
+                  <div class="page_lb_date1 page_lb_date5">
+                  <span class="count">共 <span class="right-text09">3099</span> 条</span> 
+                  <span class="count">共 <span class="right-text09">207</span> 页</span>
+                  <span class="count">第 <span class="right-text09">1</span> 页</span>         
+                  <span class='count'> 上一页 </span><span class='xz'>1</span><span><a href='/usedcar/p0a0t0c0y1r0f0d0s0/?pageNo=2&sr=null'>2</a></span><span><a href='/usedcar/p0a0t0c0y1r0f0d0s0/?pageNo=3&sr=null'>3</a></span><span><a href='/usedcar/p0a0t0c0y1r0f0d0s0/?pageNo=4&sr=null'>4</a></span><span class='gap'><a>...</a></span><span><a href='/usedcar/p0a0t0c0y1r0f0d0s0/?pageNo=207&sr=null'>207</a></span><span><a id='pagedw' href='/usedcar/p0a0t0c0y1r0f0d0s0/?pageNo=2&sr=null'>下一页 </a></span>
+                  </div>
+            </div>
+ <!----翻页end---->
+       </div>
+<!----搜索列表end---->
+      </div>
+      <div class="search_car_right">
+<!----按扭start----->
+          <div class="index_button">
+               <div class="index_button_dl"><a href="http://www.zg2sc.cn/zuser/bst/index.do" target="_blank">进入个人/商家百事通</a></div>
+               <div class="index_button_mc"><a href="/zuser/car/reinscar.do" target="_blank">免注册发布卖车信息</a></div>
+               <div class="index_button_mc"><a href="/qiugou/qiugou.jsp" target="_blank">免注册发布购车信息</a></div>
+               <div class="index_button_kjj" id="body_right">
+                     <div class="jjcx_text">
+                         <div class="index_jxs_title">免费价格查询</div>
+                          <form action="http://www.zg2sc.cn/price/pingu/pinguf_res.do" target="_blank" method="post" name="price_car" id="price_car">   
+                          <dl>
+                              <dt>品牌：</dt><dd><input type="text" name="sbrand" id="carbrand" autoComplete="off" /></dd>                             
+                              <dt>车系：</dt><dd><input type="text" name="sclass" id="carseri" autoComplete="off" /></dd>                             
+                              <dt>车型：</dt><dd><input type="text" name="smodel" id="carmode" autoComplete="off"/></dd>   
+                              <dt>车况：</dt><dd>
+                              <input type="radio" value="1" name="state" class="dx"><p>很好&nbsp;</p><input type="radio" value="2" name="state" class="dx" checked="checked"><p>好&nbsp;</p><input type="radio" value="3" name="state" class="dx"><p>一般&nbsp; </p>
+                              <input type="radio" value="4" name="state" class="dx"><p>差&nbsp; </p>
+                              
+                              </dd>                                                      
+                              </dd>
+                              <dt></dt><dd>
+                              <input type="hidden" name="serid" id="serid"/>
+                              <input type="hidden" name="modelid" id="modid"/>
+                              <input type="submit" value="" class="button" onclick="return ckFm();"/></dd>
+                          </dl>
+
+                          </form>
+                </div>
+<script type="text/javascript">
+function ckFm(){
+	if($('#carbrand').val() == ''){
+		alert("品牌不能为空！");
+		$('#carbrand').focus();
+		return false;
+	}
+	if($('#carseri').val() == ''){
+		alert("车系不能为空！");
+		$('#carseri').focus();
+		return false;
+	}
+	if($('#carmode').val() == ''){
+		alert("车型不能为空！");
+		$('#carseri').focus();
+		return false;
+	}
+}
+
+</script>
+               </div>
+          </div>
+<!----按扭end---->
+<!----我感兴趣的二手车start---->
+		<div class="search_car_gxq" id="search_car_gxq_dt_div" style="display:none;">
+                <div class="index_jxs_title">我感兴趣的二手车</div>
+                 <ul id="search_car_gxq_dt">
+                 </ul>
+           </div>
+<!----我感兴趣的二手车end---->
+            <div class="index_banner2" id="detailTl"><img src="http://img.zg2sc.cn/img2013/bl.jpg"></div>
+<!----品牌关注度排行start---->
+           <div class="search_gzd">
+                <div class="index_jxs_title">品牌关注度排行榜</div>
+                <dl id="search_gzd_jt">
+                    <dt>
+                    	<span class="a1">1</span>
+                    	比亚迪F0
+                    </dt>
+                    <dd>
+                    	<span class="a2">+1</span>
+                    </dd>
+                    <div class="clear">&nbsp;</div>
+                    <dt>
+                    	<span class="a1">2</span>
+                    	QQ3
+                    </dt>
+                    <dd>
+                    	<span class="a1">+2</span>
+                    </dd>
+                    <div class="clear">&nbsp;</div>
+                    <dt>
+                    	<span class="a1">3</span>
+                    	宝来
+                    </dt>
+                    <dd>
+                    	<span class="a1">+3</span>
+                    </dd>
+                    <div class="clear">&nbsp;</div>
+                    <dt>
+                    	<span class="a2">4</span>
+                    	北斗星
+                    </dt>
+                    <dd>
+                    	<span class="a2">-3</span>
+                    </dd>
+                    <div class="clear">&nbsp;</div>
+                    <dt>
+                    	<span class="a2">5</span>
+                    	桑塔纳
+                    </dt>
+                    <dd>
+                    	<span class="a1">+5</span>
+                    </dd>
+                    <div class="clear">&nbsp;</div>
+                    <dt>
+                    	<span class="a2">6</span>
+                    	乐驰
+                    </dt>
+                    <dd>
+                    	<span class="a1">+1</span>
+                    </dd>
+                    <div class="clear">&nbsp;</div>
+                    <dt>
+                    	<span class="a2">7</span>
+                    	帕萨特
+                    </dt>
+                    <dd>
+                    	<span class="a1">+1</span>
+                    </dd>
+                    <div class="clear">&nbsp;</div>
+                    <dt>
+                    	<span class="a2">8</span>
+                    	捷达
+                    </dt>
+                    <dd>
+                    	<span class="a2">-1</span>
+                    </dd>
+                    <div class="clear">&nbsp;</div>
+                    <dt>
+                    	<span class="a2">9</span>
+                    	宝马3系
+                    </dt>
+                    <dd>
+                    	<span class="a1">+9</span>
+                    </dd>
+                    <div class="clear">&nbsp;</div>
+                    <dt>
+                    	<span class="a2">10</span>
+                    	奥迪A6
+                    </dt>
+                    <dd>
+                    	<span class="a1">+2</span>
+                    </dd>
+                    <div class="clear">&nbsp;</div>
+                    <div class="clear"></div>
+                </dl>
+                <dl id="search_gzd_dt" style="display:none;">
+                </dl>
+           </div>
+<!----品牌关注度排行end---->
+      </div>
+</div>
+<div id="divfoot"></div>
+</body>
+</html>
+<script type="text/javascript">
+IndexFunction.showTLAdInfo(35,'detailTl');
+</script>
+
