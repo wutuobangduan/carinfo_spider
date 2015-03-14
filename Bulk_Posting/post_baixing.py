@@ -54,9 +54,9 @@ def printDelimiter():
 
 def get_car_info():
     try:
-        conn = MySQLdb.connect(host='115.29.242.204',user='spider',passwd='spider')
+        conn = MySQLdb.connect(host='115.29.242.204',user='',passwd='')
         curs = conn.cursor()
-        conn.select_db('tc5u')
+        conn.select_db('')
         curs.execute("select (select dd.field_value from data_dictionary dd where dd.id=vm.brand),(select dd.field_value from data_dictionary dd where dd.id=vm.vehicle_series),(select dd.field_value from data_dictionary dd where dd.id=vm.volume),vm.vehicle_model,(select dd.field_value from data_dictionary dd where dd.id=vm.vehicle_style),(select dd.field_value from data_dictionary dd where dd.id=vm.transmission),register_date,shown_miles,(select field_value from data_dictionary dd where dd.id=vi.vehicle_color),inspection_date,force_insurance_date,insurance_date,owner_price,(select field_value from data_dictionary dd where dd.id=vi.address),vmc.vehicle_model_conf53 as environmental_standards,vmc.vehicle_model_conf48 as fuel_form,vmc.vehicle_model_conf5 as car_level  from vehicle_info vi,vehicle_model vm,vehicle_model_conf vmc where vi.vehicle_number='32061101000014000000202764' and vm.id=vi.model_id and vmc.id=vi.model_id")
         getrows=curs.fetchall()
         if not getrows:
