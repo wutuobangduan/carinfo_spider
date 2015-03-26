@@ -6,6 +6,7 @@ from StringIO import StringIO
 import gzip
 import cookielib
 import sys
+
 reload(sys)
 sys.setdefaultencoding("utf-8")
 #from bs4 import BeautifulSoup
@@ -22,7 +23,7 @@ from selenium import webdriver
 from selenium.webdriver.common.by import By  
 from selenium.webdriver.common.keys import Keys  
 from selenium.webdriver.support.ui import Select  
-from selenium.common.exceptions import NoSuchElementException,WebDriverException
+from selenium.common.exceptions import NoSuchElementException,WebDriverException,ElementNotVisibleException
 import unittest,time,re,os 
 
 from pyvirtualdisplay import Display
@@ -39,29 +40,34 @@ import optparse
 def printDelimiter():
     print '-'*80;
 
+def check_exists_by_id(browser,id):
+    try:
+        browser.find_element_by_id(id)
+    except:
+        return False
+    return True
 
-
-def get_car_info():
+def get_car_info(vehicle_num):
     imgurls = [""]
     try:
-        conn = MySQLdb.connect(host='1',user='',passwd='')
+        conn = MySQLdb.connect(host='',user='',passwd='',charset='utf8')
         curs = conn.cursor()
         conn.select_db('')
-        curs.execute("select (select dd.field_value from data_dictionary dd where dd.id=vm.brand),(select dd.field_value from data_dictionary dd where dd.id=vm.vehicle_series),(select dd.field_value from data_dictionary dd where dd.id=vm.volume),vm.vehicle_model,(select dd.field_value from data_dictionary dd where dd.id=vm.vehicle_style),(select dd.field_value from data_dictionary dd where dd.id=vm.transmission),register_date,shown_miles,(select field_value from data_dictionary dd where dd.id=vi.vehicle_color),inspection_date,force_insurance_date,insurance_date,owner_price,(select field_value from data_dictionary dd where dd.id=vi.address),vmc.vehicle_model_conf53 as environmental_standards,vmc.vehicle_model_conf48 as fuel_form,vmc.vehicle_model_conf5 as car_level  from vehicle_info vi,vehicle_model vm,vehicle_model_conf vmc where vi.vehicle_number='32061101000014000000202764' and vm.id=vi.model_id and vmc.id=vi.model_id")
+        curs.execute("select (select dd.field_value from data_dictionary dd where dd.id=vm.brand),(select dd.field_value from data_dictionary dd where dd.id=vm.vehicle_series),(select dd.field_value from data_dictionary dd where dd.id=vm.volume),vm.vehicle_model,(select dd.field_value from data_dictionary dd where dd.id=vm.vehicle_style),(select dd.field_value from data_dictionary dd where dd.id=vm.transmission),register_date,shown_miles,(select field_value from data_dictionary dd where dd.id=vi.vehicle_color),inspection_date,force_insurance_date,insurance_date,owner_price,(select field_value from data_dictionary dd where dd.id=vi.address),vmc.vehicle_model_conf53 as environmental_standards,vmc.vehicle_model_conf48 as fuel_form,vmc.vehicle_model_conf5 as car_level  from vehicle_info vi,vehicle_model vm,vehicle_model_conf vmc where vi.vehicle_number='%s' and vm.id=vi.model_id and vmc.id=vi.model_id" % vehicle_num)
         getrows=curs.fetchall()
         if not getrows:
             result = []
         else:
             result = [getrows]
 
-        curs.execute("select imgurl from vehicle_img where vehicle_number='32061101000014000000202764'")
+        curs.execute("select imgurl from vehicle_img where vehicle_number='%s'" % vehicle_num)
         get_imgurls = curs.fetchone()
         
         while get_imgurls is not None:
             ((vehicle_img),) = get_imgurls
             #print "http://imgw00.tc5u.cn/" + vehicle_img
             if len(vehicle_img)>5:
-                imgurls.append("http://imgw00.tc5u.cn/" + vehicle_img)
+                imgurls.append("http://imgn00.tc5u.cn/" + vehicle_img)
             get_imgurls = curs.fetchone()
 
         result.append(imgurls)
@@ -89,32 +95,20 @@ def post_cardata():
         print "Usage: post_baixing.py -u yourbxUsername -p yourbxPassword"
         return False
     browser = None
-    if len(get_car_info()) > 1:
-        ((brand,vehicle_series,volume,vehicle_model,vehicle_style,transmission,register_date,shown_miles,color,inspection_date,force_insurance_date,insurance_date,owner_price,address,environmental_standards,fuel_form,car_level),)=get_car_info()[0]
-    else:
-        return False
     get_page_fails = 0
     
     try:
-        #proxy_url='202.106.16.36'
-        #profile = webdriver.FirefoxProfile()  
-        #rofile.set_preference('network.proxy.type', 1)  
-        #profile.set_preference('network.proxy.http', proxy_url)  
-        #profile.set_preference('network.proxy.http_port', 3128)  
-        #profile.set_preference('network.proxy.ssl', proxy_url)   
-        #profile.set_preference('network.proxy.ssl_port', 3128)  
-        #profile.update_preferences()  
-        #chromedriver = "C:\\Program Files (x86)\\Google\\Chrome\\Application\\chrome.exe"
-        #os.environ["webdriver.chrome.driver"] = chromedriver
-        browser = webdriver.Firefox()
+        chromedriver = "C:\Program Files (x86)\Google\Chrome\Application\chromedriver.exe"
+        os.environ["webdriver.chrome.driver"] = chromedriver
+        browser = webdriver.Chrome(chromedriver)
+        #browser = webdriver.Firefox()
         #browser = webdriver.Chrome(executable_path="C:\Program Files (x86)\Google\Chrome\Application\chrome.exe")
         browser.implicitly_wait(10)
         browser.set_page_load_timeout(30)
     except WebDriverException,e:
         print e
      
-    if browser is not None:
-        
+    if browser is not None:   
         while True:
             try:
                 if get_page_fails > 10:
@@ -136,17 +130,24 @@ def post_cardata():
         #print browser.find_element_by_id('login-name').text
         time.sleep(12)
         print 'test...'
-        
+    vehicle_nums = ["32010401000003900000204335","32010402000002950000204333","32010401000002920000204320","32010402000002720000204323","32010401000003590000204324"]
+    for vehicle_num in vehicle_nums:
+        if len(get_car_info(vehicle_num)) > 1:
+            ((brand,vehicle_series,volume,vehicle_model,vehicle_style,transmission,register_date,shown_miles,color,inspection_date,force_insurance_date,insurance_date,owner_price,address,environmental_standards,fuel_form,car_level),)=get_car_info(vehicle_num)[0]
+        else:
+            return False
+       
+        get_login_fails = 0
         while True:
             try:
-                if get_page_fails > 10:
+                if get_login_fails > 10:
                     break
                 browser.get("http://www.ganji.com/pub/pub.php?act=pub&method=load&cid=6&mcid=14&domain=nj&h=2&domain=nantong")
                 browser.implicitly_wait(5)
                 
             except:
-                get_page_fails += 1
-                print "get page info failed ... ",get_page_fails
+                get_login_fails += 1
+                print "get page info failed ... ",get_login_fails
             else:
                 break
         
@@ -221,8 +222,12 @@ def post_cardata():
             elif vehicle_series in str(get_vehicle_serie.text):
                 get_vehicle_serie.click()
                 break
-        browser.find_element_by_id('car-input').send_keys(vehicle_model.decode('utf-8'))
-        browser.find_element_by_id('car-input').send_keys(Keys.ENTER)
+        time.sleep(1)
+        try:
+            browser.find_element_by_id('car-input').send_keys(vehicle_model.decode('utf-8'))
+            browser.find_element_by_id('car-input').send_keys(Keys.ENTER)
+        except:
+            print "There is no vehicle_model ..."
         
         
         #browser.find_element_by_id('pinPai').send_keys(brand.decode('utf-8'))
@@ -253,24 +258,7 @@ def post_cardata():
         if color_verify == '':
             vehicle_colors_list[-1].find_element_by_tag_name('a').click()
             time.sleep(3)
-            
-#         return True        
-#         
-#         browser.find_element_by_id('id_title').find_element_by_tag_name('input').send_keys(vehicle_model.decode('utf-8'))
-#         browser.find_element_by_id('id_行驶里程').find_element_by_tag_name('input').send_keys(shown_miles.decode('utf-8'))
-#         browser.find_element_by_id('id_价格').find_element_by_tag_name('input').send_keys(str(owner_price))
-#         browser.find_element_by_id('id_排量').find_element_by_tag_name('input').send_keys(str(volume[:3]))
-#         browser.find_element_by_id('id_燃油类型').find_element_by_tag_name('input').send_keys(fuel_form.decode('utf-8'))        
-#         browser.find_element_by_id('id_排放标准').find_element_by_tag_name('input').send_keys(environmental_standards.decode('utf-8'))  
-#         detail_info = """
-#         淘车乐微信：“南通淘车乐二手车”（微信号：nt930801） ，海量车源在线看。
-#         淘车乐服务 ：二手车寄售、二手车购买、二手车零首付贷款、二手车评估认证。
-#         淘车乐地址：南通市港闸区兴泰路3号(南通淘车无忧认证二手车精品展厅-交警三大队旁)
-#         公交路线 ：可乘坐3路、10路、600路、602路到果园站下车。沿城港路走30米左转进入兴泰路走200米。
-#         淘车乐，帮您实现有车生活。
-#         """
-#         browser.find_element_by_id('id_content').find_element_by_tag_name('textarea').send_keys(detail_info.decode('utf-8'))
-		
+            		
         # ----------- transmissions -------------------
         printDelimiter()
         print u"变速箱:",transmission.decode('utf-8')
@@ -474,12 +462,11 @@ def post_cardata():
         printDelimiter()
         print u"补充说明"
         detail_info = u"""
-               淘车乐微信：“南通淘车乐二手车”（微信号：nt930801） ，海量车源在线看。
-               淘车乐服务 ：二手车寄售、二手车购买、二手车零首付贷款、二手车评估认证。
-               淘车乐地址：南通市港闸区兴泰路3号(南通淘车无忧认证二手车精品展厅-交警三大队旁)
-              公交路线 ：可乘坐3路、10路、600路、602路到果园站下车。沿城港路走30米左转进入兴泰路走200米。
-              淘车乐，帮您实现有车生活。
-        """
+   淘车乐微信：“南通淘车乐二手车”（微信号：nt930801） ，海量车源在线看。
+   淘车乐服务 ：二手车寄售、二手车购买、二手车零首付贷款、二手车评估认证。
+   淘车乐地址：南通市港闸区兴泰路3号(南通淘车无忧认证二手车精品展厅-交警三大队旁)
+  公交路线 ：可乘坐3路、10路、600路、602路到果园站下车。沿城港路走30米左转进入兴泰路走200米。
+  淘车乐，帮您实现有车生活。"""
         browser.find_element_by_id('id_description').send_keys(detail_info.decode('utf-8'))
         
         # ------------- 联系人、联系方式 -------------------------
@@ -505,7 +492,7 @@ def post_cardata():
         
         # ------------- 上传车辆图片 ------------------
         autoit = win32com.client.Dispatch("AutoItX3.Control")
-        car_imgs = get_car_info()[1]
+        car_imgs = get_car_info(vehicle_num)[1]
 		# ------------- 1.车辆封面照 ------------------
         for i in range(0,2):
             print car_imgs[i]
@@ -537,21 +524,36 @@ def post_cardata():
         autoit.ControlClick(u"打开", "","Button1")
         time.sleep(8)
         
-        
-        for i in range(2,len(car_imgs)):
-            print car_imgs[i]
-            browser.find_element_by_id('SWFUpload_0').click()
-            
-            #ControlFocus("title","text",controlID) Edit1=Edit instance 1
-            autoit.ControlFocus(u"打开", "","Edit1")
-            #Wait 10 seconds for the Upload window to appear
-            autoit.WinWait("[CLASS:#32770]","",5)
-            # Set the File name text on the Edit field
-            autoit.ControlSetText(u"打开", "", "Edit1", car_imgs[i])
-            time.sleep(2)
-            #Click on the Open button
-            autoit.ControlClick(u"打开", "","Button1")
-            time.sleep(8)
+        if len(car_imgs)>15:
+            for i in range(2,15):
+                print car_imgs[i]
+                browser.find_element_by_id('SWFUpload_0').click()
+                
+                #ControlFocus("title","text",controlID) Edit1=Edit instance 1
+                autoit.ControlFocus(u"打开", "","Edit1")
+                #Wait 10 seconds for the Upload window to appear
+                autoit.WinWait("[CLASS:#32770]","",5)
+                # Set the File name text on the Edit field
+                autoit.ControlSetText(u"打开", "", "Edit1", car_imgs[i])
+                time.sleep(2)
+                #Click on the Open button
+                autoit.ControlClick(u"打开", "","Button1")
+                time.sleep(8)
+        else:
+            for i in range(2,len(car_imgs)):
+                print car_imgs[i]
+                browser.find_element_by_id('SWFUpload_0').click()
+                
+                #ControlFocus("title","text",controlID) Edit1=Edit instance 1
+                autoit.ControlFocus(u"打开", "","Edit1")
+                #Wait 10 seconds for the Upload window to appear
+                autoit.WinWait("[CLASS:#32770]","",5)
+                # Set the File name text on the Edit field
+                autoit.ControlSetText(u"打开", "", "Edit1", car_imgs[i])
+                time.sleep(2)
+                #Click on the Open button
+                autoit.ControlClick(u"打开", "","Button1")
+                time.sleep(8)
 		
        
         #return True
