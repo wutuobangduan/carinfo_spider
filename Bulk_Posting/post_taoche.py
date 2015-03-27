@@ -52,7 +52,7 @@ def printDelimiter():
 def check_exists_by_id(browser,id):
     try:
         browser.find_element_by_id(id)
-    except NoSuchElementException:
+    except:
         return False
     return True
 
@@ -61,9 +61,9 @@ def check_exists_by_id(browser,id):
 def get_car_info(vehicle_nums):
     imgurls = ["","C:\\Users\\Administrator\\Desktop\\image\\nantong\\nantong.jpg"]
     try:
-        conn = MySQLdb.connect(host='',user='',passwd='',charset='utf8')
+        conn = MySQLdb.connect(host='',user='spider',passwd='spider',charset='utf8')
         curs = conn.cursor()
-        conn.select_db('')
+        conn.select_db()
         curs.execute("select vi.vin,(select d.field_value from data_dictionary d where d.id=(select dd.parent_id from data_dictionary dd where dd.id=vm.brand)),(select dd.field_value from data_dictionary dd where dd.id=vm.brand),(select dd.field_value from data_dictionary dd where dd.id=vm.vehicle_series),(select dd.field_value from data_dictionary dd where dd.id=vm.volume),vm.vehicle_model,(select dd.field_value from data_dictionary dd where dd.id=vm.vehicle_style),(select dd.field_value from data_dictionary dd where dd.id=vm.transmission),register_date,shown_miles,(select field_value from data_dictionary dd where dd.id=vi.vehicle_color),inspection_date,force_insurance_date,insurance_date,owner_price,(select field_value from data_dictionary dd where dd.id=vi.address),vmc.vehicle_model_conf53 as environmental_standards,vmc.vehicle_model_conf48 as fuel_form,vmc.vehicle_model_conf5 as car_level  from vehicle_info vi,vehicle_model vm,vehicle_model_conf vmc where vi.vehicle_number='%s' and vm.id=vi.model_id and vmc.id=vi.model_id" % vehicle_nums)
         getrows=curs.fetchall()
         if not getrows:
@@ -133,7 +133,9 @@ def post_cardata():
         time.sleep(1)
         browser.find_element_by_id('txt_LoginName').send_keys(options.username.decode('gb2312'))
         browser.find_element_by_id('txt_Password').send_keys(options.password)
-        if check_exists_by_id(browser,'txt_Code'):
+        if browser.find_element_by_id('li_code').get_attribute('style') == "display: none;":
+            print "There is no need to input validate code ..."
+        else:
             validate_code = raw_input("Please input the validate code : ")
             browser.find_element_by_id('txt_Code').send_keys(validate_code.decode('utf-8'))
         
@@ -142,8 +144,8 @@ def post_cardata():
         print 'test...'
         #print browser.find_element_by_class_name('fistinfor').find_element_by_tag_name('strong').text
 #         print browser.find_element_by_class_name('index-4sname').text
-        #vehicle_nums = ["32010401000008490000204315","32010401000004250000204317","32010401000008520000204328","32010401000012150000204330","32010401000003590000204324","32010401000003900000204335","32010401000002920000204320","32010401000011450000204327"]
-        vehicle_nums = ["32010401000008490000204315"]
+        vehicle_nums = ["32010401000008490000204315","32010401000004250000204317","32010401000008520000204328","32010401000012150000204330","32010401000003590000204324","32010401000003900000204335","32010401000002920000204320","32010401000011450000204327"]
+        #vehicle_nums = ["32010401000008490000204315"]
         for vehicle_num in vehicle_nums:
             if len(get_car_info(vehicle_num)) > 1:
                 ((vin,brand_initial,brand,vehicle_series,volume,vehicle_model,vehicle_style,transmission,register_date,shown_miles,color,inspection_date,force_insurance_date,insurance_date,owner_price,address,environmental_standards,fuel_form,car_level),)=get_car_info(vehicle_num)[0]
@@ -189,26 +191,34 @@ def post_cardata():
             brand_id = "divMasterBrand" + str(brand_initial)
             brand_options = browser.find_element_by_id(brand_id).find_elements_by_tag_name('a')
             for brand_option in brand_options:
-                if brand in str(brand_option.text):
+                if brand.lower() in str(brand_option.text).lower():
                     print brand_option.text
                     brand_option.click()
                     break
             #time.sleep(1)
             vehicle_series_options = browser.find_element_by_id('divSerial').find_elements_by_tag_name('a')
+            first_vehicle_series = 0
+            second_vehicle_series = 0
             for vehicle_series_option in vehicle_series_options:
-                if str(vehicle_series_option.text) == vehicle_series:
+                if str(vehicle_series_option.text).lower() == vehicle_series.lower():
                     print vehicle_series_option.text
                     vehicle_series_option.click()
+                    first_vehicle_series = 1
                     break
-                elif str(vehicle_series_option.text) in vehicle_series:
-                    print vehicle_series_option.text
-                    vehicle_series_option.click()
-                    break
-                elif vehicle_series in str(vehicle_series_option.text):
-                    print vehicle_series_option.text
-                    vehicle_series_option.click()
-                    break
-            #time.sleep(1)
+            if first_vehicle_series == 0:
+                for vehicle_series_option in vehicle_series_options:
+                    if str(vehicle_series_option.text).lower() in vehicle_series.lower():
+                        print vehicle_series_option.text
+                        vehicle_series_option.click()
+                        second_vehicle_series = 1
+                        break
+            if first_vehicle_series == 0 and second_vehicle_series == 0:
+                for vehicle_series_option in vehicle_series_options:
+                    if vehicle_series.lower() in str(vehicle_series_option.text).lower():
+                        print vehicle_series_option.text
+                        vehicle_series_option.click()
+                        break
+            time.sleep(1)
             vehicle_models_options = browser.find_element_by_id('divCar').find_elements_by_tag_name('a')
             verify_vehicle_models = ''
             transmission_eng = ''
@@ -323,29 +333,30 @@ def post_cardata():
             # -------------- 首次上牌 ---------------------------
             printDelimiter()
             print u'首次上牌：',register_date
-            #browser.execute_script("document.getElementById('sh_registe_div').setAttribute('style','display: block;')")
-            browser.find_element_by_id('txtBuyCarDate').click()
-            register_date_year_options = browser.find_element_by_id('divBuyCarDateYear').find_elements_by_tag_name('a')
-            for register_date_year_option in register_date_year_options:
-                if register_date_year in str(register_date_year_option.text):
-                    register_date_year_option.click()
-                    print register_date_year_option.text
-                    break
-                 
-            register_dates_month_options = browser.find_element_by_id('divBuyCarDateMonth').find_elements_by_tag_name('a')
-            for register_dates_month_option in register_dates_month_options:
-                if register_date_month[0] == '0':
-                    if register_date_month[1] in str(register_dates_month_option.text):
-                        register_dates_month_option.click()
-                        time.sleep(1)
-                        print register_date_month
+            if register_date is not None:
+                #browser.execute_script("document.getElementById('sh_registe_div').setAttribute('style','display: block;')")
+                browser.find_element_by_id('txtBuyCarDate').click()
+                register_date_year_options = browser.find_element_by_id('divBuyCarDateYear').find_elements_by_tag_name('a')
+                for register_date_year_option in register_date_year_options:
+                    if register_date_year in str(register_date_year_option.text):
+                        register_date_year_option.click()
+                        print register_date_year_option.text
                         break
-                else:
-                    if register_date_month in str(register_dates_month_option.text):
-                        register_dates_month_option.click()
-                        time.sleep(1)
-                        print register_date_month
-                        break
+                     
+                register_dates_month_options = browser.find_element_by_id('divBuyCarDateMonth').find_elements_by_tag_name('a')
+                for register_dates_month_option in register_dates_month_options:
+                    if register_date_month[0] == '0':
+                        if register_date_month[1] in str(register_dates_month_option.text):
+                            register_dates_month_option.click()
+                            time.sleep(1)
+                            print register_date_month
+                            break
+                    else:
+                        if register_date_month in str(register_dates_month_option.text):
+                            register_dates_month_option.click()
+                            time.sleep(1)
+                            print register_date_month
+                            break
                
             # ------------- 补充说明 -------------------------
             printDelimiter()
@@ -369,67 +380,69 @@ def post_cardata():
             # -------------- 年检有效期 ---------------------------
             printDelimiter()
             print u'年检有效期 ：',inspection_date
-            verify_inspection_date = ''
-            #browser.execute_script("document.getElementById('sh_registe_div').setAttribute('style','display: block;')")
-            browser.find_element_by_id('txtExamineExpireDate').click()
-            inspection_date_year_options = browser.find_element_by_id('divExamineExpireYear').find_elements_by_tag_name('a')
-            for inspection_date_year_option in inspection_date_year_options:
-                if inspection_date_year in str(inspection_date_year_option.text):
-                    inspection_date_year_option.click()
-                    verify_inspection_date = str(inspection_date_year_option.text)
-                    print inspection_date_year_option.text
-                    break
-            if verify_inspection_date == '':
-                inspection_date_year_options[-1].click()
-                print inspection_date_year_options[-1].text
-            else:
-                inspection_dates_month_options = browser.find_element_by_id('divExamineExpireMonth').find_elements_by_tag_name('a')
-                for inspection_dates_month_option in inspection_dates_month_options:
-                    if inspection_date_month[0] == '0':
-                        if inspection_date_month[1] in str(inspection_dates_month_option.text):
-                            inspection_dates_month_option.click()
-                            time.sleep(1)
-                            print inspection_date_month
-                            break
-                    else:
-                        if inspection_date_month in str(inspection_dates_month_option.text):
-                            inspection_dates_month_option.click()
-                            time.sleep(1)
-                            print inspection_date_month
-                            break
+            if inspection_date is not None:
+                verify_inspection_date = ''
+                #browser.execute_script("document.getElementById('sh_registe_div').setAttribute('style','display: block;')")
+                browser.find_element_by_id('txtExamineExpireDate').click()
+                inspection_date_year_options = browser.find_element_by_id('divExamineExpireYear').find_elements_by_tag_name('a')
+                for inspection_date_year_option in inspection_date_year_options:
+                    if inspection_date_year in str(inspection_date_year_option.text):
+                        inspection_date_year_option.click()
+                        verify_inspection_date = str(inspection_date_year_option.text)
+                        print inspection_date_year_option.text
+                        break
+                if verify_inspection_date == '':
+                    inspection_date_year_options[-1].click()
+                    print inspection_date_year_options[-1].text
+                else:
+                    inspection_dates_month_options = browser.find_element_by_id('divExamineExpireMonth').find_elements_by_tag_name('a')
+                    for inspection_dates_month_option in inspection_dates_month_options:
+                        if inspection_date_month[0] == '0':
+                            if inspection_date_month[1] in str(inspection_dates_month_option.text):
+                                inspection_dates_month_option.click()
+                                time.sleep(1)
+                                print inspection_date_month
+                                break
+                        else:
+                            if inspection_date_month in str(inspection_dates_month_option.text):
+                                inspection_dates_month_option.click()
+                                time.sleep(1)
+                                print inspection_date_month
+                                break
                     
                     
             # -------------- 交强险有效期 ---------------------------
             printDelimiter()
             print u'交强险有效期：',force_insurance_date
-            verify_force_insurance_date = ''
-            #browser.execute_script("document.getElementById('sh_registe_div').setAttribute('style','display: block;')")
-            browser.find_element_by_id('txtExamineExpireDate').click()
-            force_insurance_date_year_options = browser.find_element_by_id('divExamineExpireYear').find_elements_by_tag_name('a')
-            for force_insurance_date_year_option in force_insurance_date_year_options:
-                if force_insurance_date_year in str(force_insurance_date_year_option.text):
-                    force_insurance_date_year_option.click()
-                    verify_force_insurance_date = str(force_insurance_date_year_option.text)
-                    print force_insurance_date_year_option.text
-                    break
-            if verify_force_insurance_date == '':
-                force_insurance_date_year_options[-1].click()
-                print force_insurance_date_year_options[-1].text
-            else:
-                force_insurance_dates_month_options = browser.find_element_by_id('divExamineExpireMonth').find_elements_by_tag_name('a')
-                for force_insurance_dates_month_option in force_insurance_dates_month_options:
-                    if force_insurance_date_month[0] == '0':
-                        if force_insurance_date_month[1] in str(force_insurance_dates_month_option.text):
-                            force_insurance_dates_month_option.click()
-                            time.sleep(1)
-                            print force_insurance_date_month
-                            break
-                    else:
-                        if force_insurance_date_month in str(force_insurance_dates_month_option.text):
-                            force_insurance_dates_month_option.click()
-                            time.sleep(1)
-                            print force_insurance_date_month
-                            break
+            if force_insurance_date is not None:
+                verify_force_insurance_date = ''
+                #browser.execute_script("document.getElementById('sh_registe_div').setAttribute('style','display: block;')")
+                browser.find_element_by_id('txtExamineExpireDate').click()
+                force_insurance_date_year_options = browser.find_element_by_id('divExamineExpireYear').find_elements_by_tag_name('a')
+                for force_insurance_date_year_option in force_insurance_date_year_options:
+                    if force_insurance_date_year in str(force_insurance_date_year_option.text):
+                        force_insurance_date_year_option.click()
+                        verify_force_insurance_date = str(force_insurance_date_year_option.text)
+                        print force_insurance_date_year_option.text
+                        break
+                if verify_force_insurance_date == '':
+                    force_insurance_date_year_options[-1].click()
+                    print force_insurance_date_year_options[-1].text
+                else:
+                    force_insurance_dates_month_options = browser.find_element_by_id('divExamineExpireMonth').find_elements_by_tag_name('a')
+                    for force_insurance_dates_month_option in force_insurance_dates_month_options:
+                        if force_insurance_date_month[0] == '0':
+                            if force_insurance_date_month[1] in str(force_insurance_dates_month_option.text):
+                                force_insurance_dates_month_option.click()
+                                time.sleep(1)
+                                print force_insurance_date_month
+                                break
+                        else:
+                            if force_insurance_date_month in str(force_insurance_dates_month_option.text):
+                                force_insurance_dates_month_option.click()
+                                time.sleep(1)
+                                print force_insurance_date_month
+                                break
             
             # --------------- 定期保养、车辆用途 ----------------------
             printDelimiter()

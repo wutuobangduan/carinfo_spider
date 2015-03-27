@@ -47,9 +47,9 @@ def printDelimiter():
 def get_car_info(vehicle_num):
     imgurls = []
     try:
-        conn = MySQLdb.connect(host='218.244.135.238',user='spider',passwd='spider_tc5u',charset='utf8')
+        conn = MySQLdb.connect(host='',user='',passwd='',charset='utf8')
         curs = conn.cursor()
-        conn.select_db('tc5u')
+        conn.select_db('')
         curs.execute("select (select dd.field_value from data_dictionary dd where dd.id=vm.brand),(select dd.field_value from data_dictionary dd where dd.id=vm.vehicle_series),(select dd.field_value from data_dictionary dd where dd.id=vm.volume),vm.vehicle_model,(select dd.field_value from data_dictionary dd where dd.id=vm.vehicle_style),(select dd.field_value from data_dictionary dd where dd.id=vm.transmission),register_date,shown_miles,(select field_value from data_dictionary dd where dd.id=vi.vehicle_color),inspection_date,force_insurance_date,insurance_date,owner_price,(select field_value from data_dictionary dd where dd.id=vi.address),vmc.vehicle_model_conf53 as environmental_standards,vmc.vehicle_model_conf48 as fuel_form,vmc.vehicle_model_conf5 as car_level  from vehicle_info vi,vehicle_model vm,vehicle_model_conf vmc where vi.vehicle_number='%s' and vm.id=vi.model_id and vmc.id=vi.model_id" % vehicle_num)
         getrows=curs.fetchall()
         if not getrows:
@@ -162,25 +162,41 @@ def post_cardata():
             browser.find_element_by_id('pinPai').send_keys(brand.decode('utf-8'))
             
             time.sleep(5)
-            browser.find_element_by_id('Searchitem').find_element_by_tag_name('a').click()
+            try:
+                browser.find_element_by_id('Searchitem').find_element_by_tag_name('a').click()
+            except:
+                continue
             time.sleep(3)
             #wait.until(lambda browser: browser.find_element_by_id('cheXiWin'))
                     
             get_vehicle_series = browser.find_element_by_id('chexiFidercon')
             get_vehicle_series_dd = get_vehicle_series.find_elements_by_tag_name('dd')
             #vehicle_series = u'伊兰特'.encode('utf-8')
+            first_vehicle_series = 0
+            second_vehicle_series = 0
             for get_vehicle_serie_dd in  get_vehicle_series_dd[1:]:
                 print get_vehicle_serie_dd.find_element_by_tag_name('a').text
                 print chardet.detect(str(get_vehicle_serie_dd.find_element_by_tag_name('a').text))
-                if str(get_vehicle_serie_dd.find_element_by_tag_name('a').text) == vehicle_series:
+                if str(get_vehicle_serie_dd.find_element_by_tag_name('a').text).lower() == vehicle_series.lower():
                     get_vehicle_serie_dd.find_element_by_tag_name('a').click()
+                    first_vehicle_series = 1
                     break
-                elif str(get_vehicle_serie_dd.find_element_by_tag_name('a').text) in vehicle_series:
-                    get_vehicle_serie_dd.find_element_by_tag_name('a').click()
-                    break
-                elif vehicle_series in str(get_vehicle_serie_dd.find_element_by_tag_name('a').text):
-                    get_vehicle_serie_dd.find_element_by_tag_name('a').click()
-                    break
+            if first_vehicle_series == 0:
+                for get_vehicle_serie_dd in  get_vehicle_series_dd[1:]:
+                    print get_vehicle_serie_dd.find_element_by_tag_name('a').text
+                    print chardet.detect(str(get_vehicle_serie_dd.find_element_by_tag_name('a').text))
+                    if str(get_vehicle_serie_dd.find_element_by_tag_name('a').text).lower() in vehicle_series.lower():
+                        get_vehicle_serie_dd.find_element_by_tag_name('a').click()
+                        second_vehicle_series = 1
+                        break
+            if second_vehicle_series == 0 and  first_vehicle_series == 0:
+                for get_vehicle_serie_dd in  get_vehicle_series_dd[1:]:
+                    print get_vehicle_serie_dd.find_element_by_tag_name('a').text
+                    print chardet.detect(str(get_vehicle_serie_dd.find_element_by_tag_name('a').text))
+                    if vehicle_series.lower() in str(get_vehicle_serie_dd.find_element_by_tag_name('a').text).lower():
+                        get_vehicle_serie_dd.find_element_by_tag_name('a').click()
+                        break
+            time.sleep(1)
             try:
                 browser.find_element_by_id('cheXing').clear()
                 browser.find_element_by_id('cheXing').send_keys(vehicle_model.decode('utf-8'))

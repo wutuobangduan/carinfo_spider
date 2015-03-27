@@ -61,7 +61,7 @@ def check_exists_by_id(browser,id):
 def get_car_info(vehicle_nums):
     imgurls = ["","C:\\Users\\Administrator\\Desktop\\image\\nantong\\nantong.jpg"]
     try:
-        conn = MySQLdb.connect(host='',user='',passwd='',charset='utf8')
+        conn = MySQLdb.connect(host='',user='spider',passwd='',charset='utf8')
         curs = conn.cursor()
         conn.select_db('')
         curs.execute("select vi.vin,(select d.field_value from data_dictionary d where d.id=(select dd.parent_id from data_dictionary dd where dd.id=vm.brand)),(select dd.field_value from data_dictionary dd where dd.id=vm.brand),(select dd.field_value from data_dictionary dd where dd.id=vm.vehicle_series),(select dd.field_value from data_dictionary dd where dd.id=vm.volume),vm.vehicle_model,(select dd.field_value from data_dictionary dd where dd.id=vm.vehicle_style),(select dd.field_value from data_dictionary dd where dd.id=vm.transmission),register_date,shown_miles,(select field_value from data_dictionary dd where dd.id=vi.vehicle_color),inspection_date,force_insurance_date,insurance_date,owner_price,(select field_value from data_dictionary dd where dd.id=vi.address),vmc.vehicle_model_conf53 as environmental_standards,vmc.vehicle_model_conf48 as fuel_form,vmc.vehicle_model_conf5 as car_level  from vehicle_info vi,vehicle_model vm,vehicle_model_conf vmc where vi.vehicle_number='%s' and vm.id=vi.model_id and vmc.id=vi.model_id" % vehicle_nums)
@@ -332,34 +332,42 @@ def post_cardata():
                     break
             brand_options = browser.find_element_by_id('sltBrandList').find_elements_by_tag_name('a')
             for brand_option in brand_options:
-                if str(brand_option.text) == brand:
+                if str(brand_option.text).lower() == brand.lower():
                     print brand_option.text
                     brand_option.click()
                     break
-                elif str(brand_option.text) in brand:
+                elif str(brand_option.text).lower() in brand.lower():
                     print brand_option.text
                     brand_option.click()
                     break
-                elif brand in str(brand_option.text):
+                elif brand.lower() in str(brand_option.text).lower():
                     print brand_option.text
                     brand_option.click()
                     break
             #time.sleep(1)
             vehicle_series_options = browser.find_element_by_id('sltSerise').find_elements_by_tag_name('a')
+            first_vehicle_series = 0
+            second_vehicle_series = 0
             for vehicle_series_option in vehicle_series_options:
-                if str(vehicle_series_option.text) == vehicle_series:
+                if str(vehicle_series_option.text).lower() == vehicle_series.lower():
                     print vehicle_series_option.text
                     vehicle_series_option.click()
+                    first_vehicle_series = 1
                     break
-                elif str(vehicle_series_option.text) in vehicle_series:
-                    print vehicle_series_option.text
-                    vehicle_series_option.click()
-                    break
-                elif vehicle_series in str(vehicle_series_option.text):
-                    print vehicle_series_option.text
-                    vehicle_series_option.click()
-                    break
-            #time.sleep(1)
+            if first_vehicle_series == 0:
+                for vehicle_series_option in vehicle_series_options:
+                    if str(vehicle_series_option.text).lower() in vehicle_series.lower():
+                        print vehicle_series_option.text
+                        vehicle_series_option.click()
+                        second_vehicle_series = 1
+                        break
+            if first_vehicle_series ==0 and second_vehicle_series == 0:
+                for vehicle_series_option in vehicle_series_options:
+                    if vehicle_series.lower() in str(vehicle_series_option.text).lower():
+                        print vehicle_series_option.text
+                        vehicle_series_option.click()
+                        break
+            time.sleep(1)
             vehicle_models_options = browser.find_element_by_id('sltSpecList').find_elements_by_tag_name('a')
             verify_vehicle_models = ''
             transmission_eng = ''
@@ -410,7 +418,10 @@ def post_cardata():
             browser.find_element_by_id('carPrice').send_keys(str(owner_price))
             istranses = browser.find_elements_by_name('istrans')
             for istrans in istranses:
-                istrans.click()
+                try:
+                    istrans.click()
+                except:
+                    time.sleep(5)
             
             # ---------------- 车身颜色 ----------------------------
             printDelimiter()
@@ -457,39 +468,40 @@ def post_cardata():
             # -------------- 首次上牌 ---------------------------
             printDelimiter()
             print u'首次上牌：',register_date
-            #browser.execute_script("document.getElementById('sh_registe_div').setAttribute('style','display: block;')")
-            browser.find_element_by_id('sh_registe').click()
-            register_date_year_options = browser.find_element_by_id('sh_registe_year').find_elements_by_tag_name('option')
-            for register_date_year_option in register_date_year_options:
-                if register_date_year in str(register_date_year_option.text):
-                    register_date_year_option.click()
-                    print register_date_year_option.text
-                    break
-                
-            register_dates_month_options = browser.find_element_by_id('sh_registe_ul').find_elements_by_tag_name('a')
-            for register_dates_month_option in register_dates_month_options:
-                if register_date_month[0] == '0':
-                    if register_date_month[1] in str(register_dates_month_option.text):
-                        register_dates_month_option.click()
-                        time.sleep(1)
-                        print register_date_month
+            if register_date is not None:
+                #browser.execute_script("document.getElementById('sh_registe_div').setAttribute('style','display: block;')")
+                browser.find_element_by_id('sh_registe').click()
+                register_date_year_options = browser.find_element_by_id('sh_registe_year').find_elements_by_tag_name('option')
+                for register_date_year_option in register_date_year_options:
+                    if register_date_year in str(register_date_year_option.text):
+                        register_date_year_option.click()
+                        print register_date_year_option.text
                         break
-                else:
-                    if register_date_month in str(register_dates_month_option.text):
-                        register_dates_month_option.click()
-                        time.sleep(1)
-                        print register_date_month
-                        break
+                    
+                register_dates_month_options = browser.find_element_by_id('sh_registe_ul').find_elements_by_tag_name('a')
+                for register_dates_month_option in register_dates_month_options:
+                    if register_date_month[0] == '0':
+                        if register_date_month[1] in str(register_dates_month_option.text):
+                            register_dates_month_option.click()
+                            time.sleep(1)
+                            print register_date_month
+                            break
+                    else:
+                        if register_date_month in str(register_dates_month_option.text):
+                            register_dates_month_option.click()
+                            time.sleep(1)
+                            print register_date_month
+                            break
               
             # ------------- 补充说明 -------------------------
             printDelimiter()
             print u"补充说明"
             detail_info = u"""
-                   淘车乐微信：“南通淘车乐二手车”（微信号：nt930801） ，海量车源在线看。
-                   淘车乐服务 ：二手车寄售、二手车购买、二手车零首付贷款、二手车评估认证。
-                   淘车乐地址：南通市港闸区兴泰路3号(南通淘车无忧认证二手车精品展厅-交警三大队旁)
-                  公交路线 ：可乘坐3路、10路、600路、602路到果园站下车。沿城港路走30米左转进入兴泰路走200米。
-                  淘车乐，帮您实现有车生活。
+       淘车乐微信：“南通淘车乐二手车”（微信号：nt930801） ，海量车源在线看。
+       淘车乐服务 ：二手车寄售、二手车购买、二手车零首付贷款、二手车评估认证。
+       淘车乐地址：南通市港闸区兴泰路3号(南通淘车无忧认证二手车精品展厅-交警三大队旁)
+      公交路线 ：可乘坐3路、10路、600路、602路到果园站下车。沿城港路走30米左转进入兴泰路走200米。
+      淘车乐，帮您实现有车生活。
             """
             browser.find_element_by_id('txtRemarkContent').send_keys(detail_info.decode('utf-8'))
              
@@ -621,7 +633,12 @@ def post_cardata():
             
             time.sleep(3)
             print "finished ..... "
-            #browser.find_element_by_id('AddCar').submit()
+            try:
+                #browser.find_element_by_id('AddCar').submit()
+            except:
+                time.sleep(5)
+                #browser.find_element_by_id('AddCar').submit()
+                
             #time.sleep(10)
             #browser.quit()
               
