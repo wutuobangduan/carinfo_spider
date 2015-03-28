@@ -61,9 +61,9 @@ def check_exists_by_id(browser,id):
 def get_car_info(vehicle_nums):
     imgurls = ["","C:\\Users\\Administrator\\Desktop\\image\\nantong\\nantong.jpg"]
     try:
-        conn = MySQLdb.connect(host='',user='spider',passwd='spider',charset='utf8')
+        conn = MySQLdb.connect(host='',user='spider',passwd='',charset='utf8')
         curs = conn.cursor()
-        conn.select_db()
+        conn.select_db('')
         curs.execute("select vi.vin,(select d.field_value from data_dictionary d where d.id=(select dd.parent_id from data_dictionary dd where dd.id=vm.brand)),(select dd.field_value from data_dictionary dd where dd.id=vm.brand),(select dd.field_value from data_dictionary dd where dd.id=vm.vehicle_series),(select dd.field_value from data_dictionary dd where dd.id=vm.volume),vm.vehicle_model,(select dd.field_value from data_dictionary dd where dd.id=vm.vehicle_style),(select dd.field_value from data_dictionary dd where dd.id=vm.transmission),register_date,shown_miles,(select field_value from data_dictionary dd where dd.id=vi.vehicle_color),inspection_date,force_insurance_date,insurance_date,owner_price,(select field_value from data_dictionary dd where dd.id=vi.address),vmc.vehicle_model_conf53 as environmental_standards,vmc.vehicle_model_conf48 as fuel_form,vmc.vehicle_model_conf5 as car_level  from vehicle_info vi,vehicle_model vm,vehicle_model_conf vmc where vi.vehicle_number='%s' and vm.id=vi.model_id and vmc.id=vi.model_id" % vehicle_nums)
         getrows=curs.fetchall()
         if not getrows:
@@ -190,20 +190,26 @@ def post_cardata():
                     break
             brand_id = "divMasterBrand" + str(brand_initial)
             brand_options = browser.find_element_by_id(brand_id).find_elements_by_tag_name('a')
+            verify_brand = 0
             for brand_option in brand_options:
                 if brand.lower() in str(brand_option.text).lower():
                     print brand_option.text
                     brand_option.click()
+                    verify_brand = 1
                     break
-            #time.sleep(1)
+            time.sleep(1)
+            if verify_brand == 0:
+                continue
             vehicle_series_options = browser.find_element_by_id('divSerial').find_elements_by_tag_name('a')
             first_vehicle_series = 0
             second_vehicle_series = 0
+            verify_vehicle_series = 0
             for vehicle_series_option in vehicle_series_options:
                 if str(vehicle_series_option.text).lower() == vehicle_series.lower():
                     print vehicle_series_option.text
                     vehicle_series_option.click()
                     first_vehicle_series = 1
+                    verify_vehicle_series = 1
                     break
             if first_vehicle_series == 0:
                 for vehicle_series_option in vehicle_series_options:
@@ -211,14 +217,18 @@ def post_cardata():
                         print vehicle_series_option.text
                         vehicle_series_option.click()
                         second_vehicle_series = 1
+                        verify_vehicle_series = 1
                         break
             if first_vehicle_series == 0 and second_vehicle_series == 0:
                 for vehicle_series_option in vehicle_series_options:
                     if vehicle_series.lower() in str(vehicle_series_option.text).lower():
                         print vehicle_series_option.text
                         vehicle_series_option.click()
+                        verify_vehicle_series = 1
                         break
             time.sleep(1)
+            if verify_vehicle_series == 0:
+                continue
             vehicle_models_options = browser.find_element_by_id('divCar').find_elements_by_tag_name('a')
             verify_vehicle_models = ''
             transmission_eng = ''

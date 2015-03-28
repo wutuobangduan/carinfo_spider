@@ -44,7 +44,7 @@ def printDelimiter():
 def get_car_info(vehicle_nums):
     imgurls = []
     try:
-        conn = MySQLdb.connect(host='',user='spider',passwd='s',charset='utf8')
+        conn = MySQLdb.connect(host='',user='spider',passwd='',charset='utf8')
         curs = conn.cursor()
         conn.select_db('')
         curs.execute("select (select dd.field_value from data_dictionary dd where dd.id=vm.brand),(select dd.field_value from data_dictionary dd where dd.id=vm.vehicle_series),(select dd.field_value from data_dictionary dd where dd.id=vm.volume),vm.vehicle_model,(select dd.field_value from data_dictionary dd where dd.id=vm.vehicle_style),(select dd.field_value from data_dictionary dd where dd.id=vm.transmission),register_date,shown_miles,(select field_value from data_dictionary dd where dd.id=vi.vehicle_color),inspection_date,force_insurance_date,insurance_date,owner_price,(select field_value from data_dictionary dd where dd.id=vi.address),vmc.vehicle_model_conf53 as environmental_standards,vmc.vehicle_model_conf48 as fuel_form,vmc.vehicle_model_conf5 as car_level  from vehicle_info vi,vehicle_model vm,vehicle_model_conf vmc where vi.vehicle_number='%s' and vm.id=vi.model_id and vmc.id=vi.model_id" % vehicle_nums)
@@ -150,23 +150,37 @@ def post_cardata():
             div = browser.find_element_by_id('id_车品牌')
             get_brands = div.find_element_by_tag_name('select')
             brand_options = get_brands.find_elements_by_tag_name('option')
+            first_brand = 0
+            second_brand = 0
+            verify_brand = 0
             for brand_option in brand_options:
                 #print option.text,type(option.text),chardet.detect(str(option.text))
                 if str(brand_option.text).lower() == brand.lower():     
                     print brand_option.text
                     brand_option.click()
+                    first_brand = 1
+                    verify_brand = 1
                     time.sleep(3)
                     break
-                elif str(brand_option.text).lower() in brand.lower():
-                    print brand_option.text
-                    brand_option.click()
-                    time.sleep(3)
-                    break
-                elif brand.lower() in str(brand_option.text).lower():
-                    print brand_option.text
-                    brand_option.click()
-                    time.sleep(3)
-                    break
+            if first_brand == 0:
+                for brand_option in brand_options:
+                    if str(brand_option.text).lower() in brand.lower():
+                        print brand_option.text
+                        brand_option.click()
+                        second_brand = 1
+                        verify_brand = 1
+                        time.sleep(3)
+                        break
+            if first_brand == 0 and second_brand == 0:
+                for brand_option in brand_options:
+                    if brand.lower() in str(brand_option.text).lower():
+                        print brand_option.text
+                        brand_option.click()
+                        verify_brand = 1
+                        time.sleep(3)
+                        break
+            if verify_brand == 0:
+                continue
             moreinfo = browser.find_element_by_id('moreinfo')
             span = moreinfo.find_element_by_class_name('button-show')
             span.click()
