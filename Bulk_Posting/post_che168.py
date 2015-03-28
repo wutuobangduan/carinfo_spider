@@ -331,28 +331,44 @@ def post_cardata():
                     brand_init.click()
                     break
             brand_options = browser.find_element_by_id('sltBrandList').find_elements_by_tag_name('a')
+            verify_brand = 0
+            first_brand = 0
+            second_brand = 0
             for brand_option in brand_options:
                 if str(brand_option.text).lower() == brand.lower():
                     print brand_option.text
                     brand_option.click()
+                    first_brand = 1
+                    verify_brand = 1
                     break
-                elif str(brand_option.text).lower() in brand.lower():
-                    print brand_option.text
-                    brand_option.click()
-                    break
-                elif brand.lower() in str(brand_option.text).lower():
-                    print brand_option.text
-                    brand_option.click()
-                    break
-            #time.sleep(1)
+            if first_brand == 0:
+                for brand_option in brand_options:
+                    if str(brand_option.text).lower() in brand.lower():
+                        print brand_option.text
+                        brand_option.click()
+                        second_brand = 1
+                        verify_brand = 1
+                        break
+            if first_brand == 0 and second_brand == 0:
+                for brand_option in brand_options:
+                    if brand.lower() in str(brand_option.text).lower():
+                        print brand_option.text
+                        brand_option.click()
+                        verify_brand = 1
+                        break
+            time.sleep(1)
+            if verify_brand == 0:
+                continue
             vehicle_series_options = browser.find_element_by_id('sltSerise').find_elements_by_tag_name('a')
             first_vehicle_series = 0
             second_vehicle_series = 0
+            verify_vehicle_series = 0
             for vehicle_series_option in vehicle_series_options:
                 if str(vehicle_series_option.text).lower() == vehicle_series.lower():
                     print vehicle_series_option.text
                     vehicle_series_option.click()
                     first_vehicle_series = 1
+                    verify_vehicle_series = 1
                     break
             if first_vehicle_series == 0:
                 for vehicle_series_option in vehicle_series_options:
@@ -360,14 +376,18 @@ def post_cardata():
                         print vehicle_series_option.text
                         vehicle_series_option.click()
                         second_vehicle_series = 1
+                        verify_vehicle_series = 1
                         break
             if first_vehicle_series ==0 and second_vehicle_series == 0:
                 for vehicle_series_option in vehicle_series_options:
                     if vehicle_series.lower() in str(vehicle_series_option.text).lower():
                         print vehicle_series_option.text
                         vehicle_series_option.click()
+                        verify_vehicle_series = 1
                         break
             time.sleep(1)
+            if verify_vehicle_series == 0:
+                continue
             vehicle_models_options = browser.find_element_by_id('sltSpecList').find_elements_by_tag_name('a')
             verify_vehicle_models = ''
             transmission_eng = ''
