@@ -17,6 +17,7 @@ import sys
 reload(sys)
 sys.setdefaultencoding("utf-8")
 from bs4 import BeautifulSoup
+from lxml import etree
 
 
 def get_all_brand(url):
@@ -137,7 +138,7 @@ def get_qiugou_info(myUrl):
                             print brand_name,second_brand_name[i],series_link[i][k],will_be_onsale[i][k],series_name[i][k],on_stop_sale[i][k]
                             res_brand = [brand_name,'',myUrl.split('/')[-1].split('.')[0]]
                             try:
-                                conn = MySQLdb.connect(host='127.0.0.1',user='root',passwd='dp')
+                                conn = MySQLdb.connect(host='192.168.2.201',user='insert_tc5u',passwd='dp')
                                 curs = conn.cursor()
                                 conn.select_db('tc_platform')
                                 print "check the brand whether exists..."
@@ -208,6 +209,60 @@ def get_qiugou_info(myUrl):
                                             localfile.write(str(getmodels[0]))
                                             localfile.write("\r\n")
                                             localfile.close()
+                                elif on_stop_sale[i][k] is not None:
+                                    user_agent1 = 'Mozilla/5.0 (Windows; U; Windows NT 6.1; en-US; rv:1.9.1.6) Gecko/20091201 Firefox/3.5.6'
+                                    heads1 = {'User-Agent':user_agent1}
+                                    req1 = urllib2.Request(series_link[i][k],headers=heads1)
+                                    html1 = ''
+                                    fails1 = 0  
+                                    while True:
+                                        try:
+                                            if fails1 >= 10:
+                                                break
+                                            response1 = urllib2.urlopen(req1,timeout=30)
+                                            html1 = response1.read()
+                                        except:
+                                            fails1 += 1
+                                            print "Handing brand,the network may be not Ok,please wait...",fails1
+                                        else:
+                                            break
+                                    if html1 != '':
+                                        print series_link[i][k]
+                                        print chardet.detect(html1)
+                                        soup1 = BeautifulSoup(html1.decode('gbk','ignore').encode('utf-8'))
+                                        for stop_link in soup1.find_all(attrs={'class':'link-sale'}):
+                                            if stop_link.get('href') is not None:
+                                                print stop_link.get('href')
+                                                
+                                                print "select the model series_id ..."
+                                                curs.execute("select series_id from tc_vehicle_series where series_name = '%s' and brand_id= %s" % (series_name[i][k],int(brand_id[0])))
+                                                series_id = curs.fetchone()
+                                                print "select model series_id is : ",series_id
+                                                stop_series_link = ''
+                                                if len(series_link[i][k].split('#')) > 0:
+                                                    stop_series_link = series_link[i][k].split('#')[0]+'sale.html' 
+                                                if stop_series_link != '':
+                                                    (all_year_patterns,all_vehicle_model_names,all_vehicle_model_ids) = handle_stopsale_vehicle_model(stop_series_link)
+                                                    print len(all_year_patterns),'=======length=======',len(all_vehicle_model_names),'=====================',len(all_vehicle_model_ids)
+                                                    if len(all_year_patterns)<1:
+                                                        localfile = open("no_ok_link1.txt","a")
+                                                        localfile.write(str(series_link[i][k]))
+                                                        localfile.write("\r\n")
+                                                        localfile.close()
+                                                    for y in range(len(all_year_patterns)):
+                                                        res_models = [all_vehicle_model_names[y],int(brand_id[0]),int(series_id[0]),int(series_parent_id[0]),series_name[i][k],brand_name,all_year_patterns[y],all_vehicle_model_ids[y]]
+                                                        print "check whether the vehicle_model exists..."
+                                                        #curs.execute("select vehicle_model_id from tc_vehicle_model where vehicle_name = '%s' and brand_id=%s and series_id=%s and series_id_top=%s" % (all_vehicle_model_names[y],int(brand_id[0]),int(series_id[0]),int(getsecondbrand[0])
+                                                        curs.execute("select vehicle_model_id from tc_vehicle_model where che168_model_id=%s" % all_vehicle_model_ids[y])
+                                                        getmodels = curs.fetchone()
+                                                        if not getmodels:
+                                                            print "insert tc_vehicle_model the models..."
+                                                            curs.execute("insert into tc_vehicle_model(vehicle_name,brand_id,series_id,series_id_top,series_name,brand_name,vehicle_selltime,che168_model_id) values(%s,%s,%s,%s,%s,%s,%s,%s)",res_models)
+                                                        else:
+                                                            localfile = open("che168_model1.txt","a")
+                                                            localfile.write(str(getmodels[0]))
+                                                            localfile.write("\r\n")
+                                                            localfile.close() 
                                 conn.commit()
                                 curs.close()
                                 conn.close()
